@@ -17,8 +17,14 @@ class Screen:
         self.status = StringVar(value='Status')
 
         # self.L2 = Label(self.frame, text="URL", textvariable=self.status)
-        self.E2 = Entry(self.frame, bd=3, width=40, state=DISABLED, textvariable=self.status)
+        # self.E2 = Entry(self.frame, bd=3, width=40, state=DISABLED, textvariable=self.status)
+        self.E2 = Text(self.frame, state=DISABLED)
         self.E2.grid(row=2, column=0, columnspan=2, sticky=W + E, ipadx=10, padx=10, pady=10)
 
     def screen_show(self):
         self.frame.mainloop()
+
+    def append_text(self, string):
+        self.E2.configure(state=NORMAL)
+        self.E2.insert(END, string)
+        self.E2.configure(state=DISABLED)

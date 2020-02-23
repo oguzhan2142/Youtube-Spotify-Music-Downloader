@@ -3,9 +3,17 @@ import youtube_dl
 from bs4 import BeautifulSoup
 from youtube_search import YoutubeSearch
 from screen import Screen
+from threading import Thread
+import time
 
 
 def download_mp3(url):
+    def my_hook(d):
+        if d['status'] == 'error':
+            screen.append_text('error occured\n')
+        if d['status'] == 'finished':
+            screen.append_text(d['filename'] + ' finished...\n')
+
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -14,6 +22,7 @@ def download_mp3(url):
             'preferredquality': '192',
         }],
         'outtmpl': 'Downloads/%(title)s.%(ext)s',
+        'progress_hooks': [my_hook],
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
@@ -35,23 +44,23 @@ def give_names_spotify():
 def start_download():
     youtube_url = 'https://www.youtube.com'
     music_names = give_names_spotify()
-    status_string = ''
-    for music in music_names:
-        results = YoutubeSearch(music, max_results=1).videos
-        first_result = results[0]
-        first_result_link = first_result['link']
-        status_string += (music + ' downloading' + '\n')
-        screen.status.set(screen.status.get() + ' aa ')
-        download_mp3(youtube_url + first_result_link)
-        break
+    screen.append_text('Downloads Starting...\n')
 
+    for index, music in enumerate(music_names):
+        first_result = YoutubeSearch(music, max_results=1).videos[0]
 
-def asd():
-    screen.status.set(screen.status.get() + ' ok \n')
+        if not first_result:
+            screen.append_text('None Value Cannot Downloaded\n')
+            continue
+
+        first_yt_link = first_result['link']
+        screen.append_text(music + ' downloading' + '\n')
+        download_link = youtube_url + first_yt_link
+        Thread(target=download_mp3, args=(download_link,)).start()
 
 
 if __name__ == '__main__':
     screen = Screen()
     screen.status.set('Waiting For Link')
-    screen.B.configure(command=asd)
+    screen.B.configure(command=lambda: Thread(target=start_download).start())
     screen.screen_show()
