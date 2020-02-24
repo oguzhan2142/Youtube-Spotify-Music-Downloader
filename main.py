@@ -5,28 +5,34 @@ import requests
 
 
 def downloading_process():
-    url = screen.E1.get()
+    url = screen.url_field.get()
 
     try:
         requests.get(url)
     except:
-        screen.append_text('Invalid URL')
+        screen.append_text('Invalid URL\n')
         return
 
     if 'https://www.youtube.com' in url:
         # youtube
         screen.append_text('Downloading from YouTube\n')
-        download_from_yt(url, screen)
+        if screen.directory:
+            download_from_yt(url, screen, directory=screen.directory)
+        else:
+            download_from_yt(url, screen)
     elif 'https://open.spotify.com' in url:
         # spotify
         screen.append_text('Downloading from Spotify\n')
-        download_from_spotify(url, screen)
+        if screen.directory:
+            download_from_spotify(url, screen, directory=screen.directory)
+        else:
+            download_from_spotify(url, screen)
     else:
         screen.append_text(url + ' Not Spotify or YouTube link')
 
 
 if __name__ == '__main__':
     screen = Screen()
-    screen.status.set('Waiting For Link')
     screen.B.configure(command=lambda: Thread(target=downloading_process).start())
+    screen.B_folder.configure(command=screen.select_folder)
     screen.screen_show()

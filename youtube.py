@@ -2,12 +2,12 @@ import youtube_dl
 from threading import Thread
 
 
-def download_from_yt(url, screen):
+def download_from_yt(url, screen, directory=None):
     if 'playlist' in url:
         screen.append_text('Playlist Found\n')
-        Thread(target=download_playlist, args=(url, screen,)).start()
+        Thread(target=download_playlist, args=(url, screen, directory,)).start()
     else:
-        Thread(target=download_single_mp3, args=(url, screen,)).start()
+        Thread(target=download_single_mp3, args=(url, screen, directory,)).start()
 
 
 def extract_playlist(playlist_url):
@@ -27,7 +27,7 @@ def download_playlist(playlist_url, screen):
         Thread(target=download_single_mp3, args=(url, screen, music['title'])).start()
 
 
-def download_single_mp3(url, screen, music_title=None):
+def download_single_mp3(url, screen, directory=None, music_title=None):
     def my_hook(d):
         if d['status'] == 'error':
             screen.append_text('error occured\n')
@@ -38,6 +38,10 @@ def download_single_mp3(url, screen, music_title=None):
             else:
                 screen.append_text(d['filename'] + ' downloaded.Converting to mp3...\n')
 
+    download_directory = 'Downloads/%(title)s.%(ext)s'
+    if directory:
+        download_directory = directory + '/%(title)s.%(ext)s'
+
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -45,13 +49,16 @@ def download_single_mp3(url, screen, music_title=None):
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
-        'outtmpl': 'Downloads/%(title)s.%(ext)s',
+        'outtmpl': download_directory,
         'progress_hooks': [my_hook],
         'noplaylist': True,
     }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
-        if music_title:
-            screen.append_text(music_title + ' converted mp3 succesfully\n')
-        else:
-            screen.append_text('File converted mp3 succesfully\n')
+    try:
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+            if music_title:
+                screen.append_text(music_title + ' converted mp3 succesfully\n')
+            else:
+                screen.append_text('File converted mp3 succesfully\n')
+    except:
+        screen.append_text('[Error]:Error Occured !!!\n')

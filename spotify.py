@@ -5,7 +5,7 @@ from youtube_search import YoutubeSearch
 from youtube import download_single_mp3
 
 
-def download_from_spotify(url, screen):
+def download_from_spotify(url, screen, directory=None):
     youtube_url = 'https://www.youtube.com'
     music_names = give_names_spotify(url)
 
@@ -21,7 +21,7 @@ def download_from_spotify(url, screen):
         first_yt_link = first_result['link']
         screen.append_text(music + ' downloading' + '\n')
         download_link = youtube_url + first_yt_link
-        Thread(target=download_single_mp3, args=(download_link, screen, music,)).start()
+        Thread(target=download_single_mp3, args=(download_link, screen, music, directory,)).start()
 
 
 def give_names_spotify(url):
