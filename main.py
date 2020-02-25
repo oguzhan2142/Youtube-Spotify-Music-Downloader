@@ -33,6 +33,7 @@ def downloading_process():
 
 if __name__ == '__main__':
     screen = Screen()
-    screen.B.configure(command=lambda: Thread(target=downloading_process).start())
-    screen.B_folder.configure(command=screen.select_folder)
+    screen.download_btn.configure(command=lambda: Thread(target=downloading_process).start())
+    screen.folder_btn.configure(command=screen.select_folder)
+    screen.clear_console_btn.configure(command=screen.clear_console)
     screen.screen_show()
