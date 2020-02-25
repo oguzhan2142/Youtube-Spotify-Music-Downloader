@@ -19,16 +19,16 @@ def download_from_spotify(url, screen, directory=None):
         search = YoutubeSearch(music, max_results=1)
         first_result = search.videos[0]
         if not first_result:
-            screen.append_text('None Value cannot Downloaded\n')
+            screen.append_text('Error when search on Youtube\n')
             continue
         first_yt_link = first_result['link']
-        screen.append_text(music + ' downloading' + '\n')
+        screen.append_text(music_header + music + downloading + '\n')
         download_link = youtube_url + first_yt_link
         thread = Thread(target=download_single_mp3, args=(download_link, screen, directory, music,))
         threads.append(thread)
         thread.start()
     wait_threads_loop(threads)
-    screen.append_text(downloads_finished)
+    screen.append_text(all_downloads_finished)
 
 
 def give_names_spotify(url):

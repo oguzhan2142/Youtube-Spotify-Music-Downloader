@@ -1,4 +1,8 @@
-downloads_finished = 'All Downloads Finished Successfully'
+all_downloads_finished = 'All Downloads Finished Successfully'
+downloading = '\ndownloading:       [######              ]'
+converting = '\nconverting:        [############        ]'
+converted = '\nconverted to mp3:  [####################]'
+music_header = '--->'
 
 
 def wait_threads_loop(threads):
