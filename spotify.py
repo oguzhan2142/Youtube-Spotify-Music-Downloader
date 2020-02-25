@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from youtube_search import YoutubeSearch
 from youtube import download_single_mp3
+from utils import *
 
 
 def download_from_spotify(url, screen, directory=None):
@@ -13,15 +14,21 @@ def download_from_spotify(url, screen, directory=None):
         screen.append_text('[Error]:Musics can\'t get from:\n' + url + '\n')
         return
 
+    threads = []
     for music in music_names:
-        first_result = YoutubeSearch(music, max_results=1).videos[0]
+        search = YoutubeSearch(music, max_results=1)
+        first_result = search.videos[0]
         if not first_result:
             screen.append_text('None Value cannot Downloaded\n')
             continue
         first_yt_link = first_result['link']
         screen.append_text(music + ' downloading' + '\n')
         download_link = youtube_url + first_yt_link
-        Thread(target=download_single_mp3, args=(download_link, screen, music, directory,)).start()
+        thread = Thread(target=download_single_mp3, args=(download_link, screen, directory, music,))
+        threads.append(thread)
+        thread.start()
+    wait_threads_loop(threads)
+    screen.append_text(downloads_finished)
 
 
 def give_names_spotify(url):

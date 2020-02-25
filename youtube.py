@@ -1,5 +1,6 @@
 import youtube_dl
 from threading import Thread
+from utils import *
 
 
 def download_from_yt(url, screen, directory=None):
@@ -18,13 +19,18 @@ def extract_playlist(playlist_url):
     return dic['entries']
 
 
-def download_playlist(playlist_url, screen):
+def download_playlist(playlist_url, screen, directory=None):
     base_url = 'https://www.youtube.com/watch?v='
     playlist = extract_playlist(playlist_url)
+    threads = []
     for music in playlist:
         url = base_url + music['url']
         screen.append_text(music['title'] + ' downloading\n')
-        Thread(target=download_single_mp3, args=(url, screen, music['title'])).start()
+        thread = Thread(target=download_single_mp3, args=(url, screen, directory, music['title'],))
+        threads.append(thread)
+        thread.start()
+    wait_threads_loop(threads)
+    screen.append_text(downloads_finished)
 
 
 def download_single_mp3(url, screen, directory=None, music_title=None):
@@ -38,7 +44,7 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
             else:
                 screen.append_text(d['filename'] + ' downloaded.Converting to mp3...\n')
 
-    download_directory = 'Downloads/%(title)s.%(ext)s'
+    download_directory = './Downloads/%(title)s.%(ext)s'
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
 
