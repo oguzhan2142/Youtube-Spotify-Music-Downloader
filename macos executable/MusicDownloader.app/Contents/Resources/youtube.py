@@ -43,7 +43,7 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
             else:
                 screen.append_text(music_header + d['filename'] + converting + '\n')
 
-    download_directory = './Downloads/%(title)s.%(ext)s'
+    download_directory = '../Downloads/%(title)s.%(ext)s'
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
 
@@ -66,4 +66,4 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
             else:
                 screen.append_text(music_header + 'File' + converted + '\n')
     except:
-        screen.append_text('[Error]:Error Occured !!!\n')
+        screen.append_text(music_title + ' Error Occured\n')
