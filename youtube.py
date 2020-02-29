@@ -2,6 +2,7 @@ import youtube_dl
 from threading import Thread
 from utils import *
 import platform
+import os
 
 
 def download_from_yt(url, screen, directory=None):
@@ -44,9 +45,14 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
             else:
                 screen.append_text(music_header + d['filename'] + converting + '\n')
 
-    download_directory = '../Downloads/%(title)s.%(ext)s'
+    userhome = os.path.expanduser('~')
+    desktop_path = userhome + '/Desktop/Downloads/'
+    music_template = '/%(title)s.%(ext)s'
+
+    download_directory = desktop_path + music_template
+
     if directory:
-        download_directory = directory + '/%(title)s.%(ext)s'
+        download_directory = directory + music_template
 
     if platform.system() == 'Windows':
         ffmpeg_location = 'ffmpeg/ffmpeg-windows/bin/ffmpeg.exe'
