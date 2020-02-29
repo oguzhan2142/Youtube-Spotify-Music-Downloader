@@ -1,6 +1,7 @@
 import youtube_dl
 from threading import Thread
 from utils import *
+import platform
 
 
 def download_from_yt(url, screen, directory=None):
@@ -47,6 +48,11 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
 
+    if platform.system() == 'Windows':
+        ffmpeg_location = 'ffmpeg/ffmpeg-windows/bin/ffmpeg.exe'
+    else:
+        ffmpeg_location = 'ffmpeg/ffmpeg-mac/bin/ffmpeg'
+
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -54,6 +60,8 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
+
+        'ffmpeg_location': ffmpeg_location,
         'outtmpl': download_directory,
         'progress_hooks': [my_hook],
         'noplaylist': True,
