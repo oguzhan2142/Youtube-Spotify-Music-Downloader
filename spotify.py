@@ -93,22 +93,28 @@ def selenium_parse(url):
 def download_from_spotify(url, screen, directory=None):
     youtube_url = 'https://www.youtube.com'
     playlist = selenium_parse(url)
-
     downloaded_counter = 0
     threads = []
     skipped_musics = []
-    print(len(playlist), ' playlist lenght')
+    print(len(playlist), ' playlist length')
     for music in playlist:
-        found_videos = YoutubeSearch(music['track_name'], max_results=1).videos
-
+        query = music['artist'] + ' ' + music['track_name']
+        found_videos = YoutubeSearch(query, max_results=10)
+        videos = found_videos.videos
+        matched_result = None
         if found_videos:
-            matched_result = found_videos[0]
+            for video in videos:
+                track_name = get_plain_string(music['track_name'].lower())
+                video_name = get_plain_string(video['title'].lower())
+                if track_name in video_name:
+                    matched_result = video
+                    break
         else:
             skipped_musics.append(music['track_name'])
             continue
 
         if not matched_result:
-            screen.append_text('No matched result\n')
+            screen.append_text('No matched result for' + music['track_name'] + ' \n')
             continue
 
         first_yt_link = matched_result['link']

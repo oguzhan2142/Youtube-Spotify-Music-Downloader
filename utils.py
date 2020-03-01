@@ -28,6 +28,43 @@ def give_desktop_path():
     return download_directory
 
 
+def remove_remix(string_with_remix):
+    string_with_remix = string_with_remix.lower()
+    if 'remix' in string_with_remix:
+        string_with_remix = string_with_remix.replace('remix', '')
+    return string_with_remix
+
+
+def remove_noncharacters(string='asd'):
+    new_str = ''
+    for s in string:
+        if 'a' <= s <= 'z':
+            new_str += s
+    return new_str
+
+
+def turn_turkishchars_to_englishchars(string='asd'):
+    turkish_chars = {
+        'ğ': 'g',
+        'ı': 'i',
+        'ö': 'o',
+        'ü': 'u',
+        'ş': 's',
+        'ç': 'c',
+    }
+    for key in turkish_chars.keys():
+        if key in string:
+            string = string.replace(key, turkish_chars[key])
+    return string
+
+
+def get_plain_string(string='asd'):
+    string = remove_remix(string)
+    string = remove_noncharacters(string)
+    string = turn_turkishchars_to_englishchars(string)
+    return string
+
+
 def give_float_value(string):
     array = string.split(':')
     new_string = ''
