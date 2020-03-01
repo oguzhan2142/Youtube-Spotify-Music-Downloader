@@ -1,42 +1,128 @@
 from threading import Thread
-import requests
 from bs4 import BeautifulSoup
 from youtube_search import YoutubeSearch
 from youtube import download_single_mp3
 from utils import *
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+
+def parse_artist(soup):
+    artist = soup.find(attrs={'class': 'large'})
+    artist = artist.text
+    playlist = []
+    all_rows = soup.find_all(attrs={'class': 'tracklist-row'})
+    for row in all_rows:
+        trackname_in_row = row.find(attrs={'class': 'tracklist-name ellipsis-one-line'}).text
+        duration_in_row = row.find(attrs={'class': 'tracklist-duration'}).text
+        playlist.append({
+            'artist': artist,
+            'track_name': trackname_in_row,
+            'duration': give_float_value(duration_in_row),
+        })
+
+    return playlist
+
+
+def parse_album_or_playlist(soup):
+    playlist = []
+    all_rows = soup.find_all(attrs={'class': 'tracklist-row'})
+    for row in all_rows:
+        artist_in_row = row.find(attrs={'class': 'tracklist-row__artist-name-link'}).text
+        trackname_in_row = row.find(attrs={'class': 'tracklist-name ellipsis-one-line'}).text
+        duration_in_row = row.find(attrs={'class': 'tracklist-duration'}).text
+        playlist.append({
+            'artist': artist_in_row,
+            'track_name': trackname_in_row,
+            'duration': give_float_value(duration_in_row),
+        })
+
+    return playlist
+
+
+def parse_track(soup):
+    title = soup.find(attrs={'property': 'og:title'})
+    track_name = title.get('content')
+
+    all_rows = soup.find_all(attrs={'class': 'tracklist-row'})
+    track_row = None
+    for row in all_rows:
+        trackname_in_row = row.find(attrs={'class': 'tracklist-name ellipsis-one-line'}).text
+        if track_name == trackname_in_row:
+            track_row = row
+            break
+
+    artist = track_row.find(attrs={'class': 'second-line'}).text
+    duration = track_row.find(attrs={'class': 'tracklist-duration'}).text
+
+    return {
+        'artist': artist,
+        'track_name': track_name,
+        'duration': give_float_value(duration),
+    }
+
+
+def selenium_parse(url):
+    chrome_options = Options()
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--headless")
+
+    if platform.system() == 'Windows':
+        driver = webdriver.Chrome('Driver/chromedriver.exe', options=chrome_options)
+    else:
+        driver = webdriver.Chrome('Driver/chromedriver', options=chrome_options)
+    driver.get(url)
+    soup = BeautifulSoup(driver.page_source.encode("utf-8"), 'html.parser')
+    driver.quit()
+
+    if 'artist' in url:
+        print('artist page')
+        return parse_artist(soup)
+    elif 'album' in url:
+        print('album page')
+        return parse_album_or_playlist(soup)
+    elif 'playlist' in url:
+        print('playlist page')
+        return parse_album_or_playlist(soup)
+    else:
+        print('track page')
+        return parse_track(soup)
 
 
 def download_from_spotify(url, screen, directory=None):
     youtube_url = 'https://www.youtube.com'
-    music_names = give_names_spotify(url)
+    playlist = selenium_parse(url)
 
-    if not music_names:
-        screen.append_text('[Error]:Musics can\'t get from:\n' + url + '\n')
-        return
-
+    downloaded_counter = 0
     threads = []
-    for music in music_names:
-        search = YoutubeSearch(music, max_results=1)
-        first_result = search.videos[0]
-        if not first_result:
-            screen.append_text('Error when search on Youtube\n')
+    skipped_musics = []
+    print(len(playlist), ' playlist lenght')
+    for music in playlist:
+        found_videos = YoutubeSearch(music['track_name'], max_results=1).videos
+
+        if found_videos:
+            matched_result = found_videos[0]
+        else:
+            skipped_musics.append(music['track_name'])
             continue
-        first_yt_link = first_result['link']
-        screen.append_text(music_header + music + downloading + '\n')
+
+        if not matched_result:
+            screen.append_text('No matched result\n')
+            continue
+
+        first_yt_link = matched_result['link']
+        screen.append_text(music_header + music['track_name'] + downloading + '\n')
         download_link = youtube_url + first_yt_link
-        thread = Thread(target=download_single_mp3, args=(download_link, screen, directory, music,))
+        thread = Thread(target=download_single_mp3, args=(download_link, screen, directory, music['track_name'],))
+        downloaded_counter += 1
         threads.append(thread)
         thread.start()
+
     wait_threads_loop(threads)
     screen.append_text(all_downloads_finished)
-
-
-def give_names_spotify(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    divs = soup.find_all('div', attrs={'class': 'tracklist-col name'})
-    track_names = []
-    for link in divs:
-        track_name = link.find('span', attrs={'class': 'track-name'})
-        track_names.append(track_name.text)
-    return track_names
+    screen.append_text(str(downloaded_counter) + ' music downloaded\n')
+    if skipped_musics:
+        screen.append_text(str(len(skipped_musics)) + ' music couldn\'t download:\n')
+        for skipped_music in skipped_musics:
+            screen.append_text(skipped_music + '\n')

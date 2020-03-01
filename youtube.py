@@ -45,14 +45,10 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
             else:
                 screen.append_text(music_header + d['filename'] + converting + '\n')
 
-    userhome = os.path.expanduser('~')
-    desktop_path = userhome + '/Desktop/Downloads/'
-    music_template = '/%(title)s.%(ext)s'
-
-    download_directory = desktop_path + music_template
-
     if directory:
-        download_directory = directory + music_template
+        download_directory = directory + '/%(title)s.%(ext)s'
+    else:
+        download_directory = give_desktop_path()
 
     if platform.system() == 'Windows':
         ffmpeg_location = 'ffmpeg/ffmpeg-windows/bin/ffmpeg.exe'
