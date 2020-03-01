@@ -6,6 +6,7 @@ downloading = '\ndownloading:       [######              ]'
 converting = '\nconverting:        [############        ]'
 converted = '\nconverted to mp3:  [####################]'
 music_header = '--->'
+summary = '\n*********************Summary*********************\n'
 
 
 def wait_threads_loop(threads):

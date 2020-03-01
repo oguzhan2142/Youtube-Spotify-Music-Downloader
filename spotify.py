@@ -90,33 +90,39 @@ def selenium_parse(url):
         return parse_track(soup)
 
 
+def search_videos_on_youtube(music):
+    matched_result = None
+    query = music['artist'] + ' ' + music['track_name']
+    found_videos = YoutubeSearch(query, max_results=10)
+    videos = found_videos.videos
+
+    if found_videos:
+        for video in videos:
+            track_name = get_plain_string(music['track_name'].lower())
+            video_name = get_plain_string(video['title'].lower())
+            if track_name in video_name:
+                matched_result = video
+                break
+
+    return matched_result
+
+
 def download_from_spotify(url, screen, directory=None):
     youtube_url = 'https://www.youtube.com'
     playlist = selenium_parse(url)
     downloaded_counter = 0
     threads = []
     skipped_musics = []
-    screen.append_text(str(len(playlist)) + 'music found\n')
+    screen.append_text(str(len(playlist)) + ' music found\n')
     for music in playlist:
-        query = music['artist'] + ' ' + music['track_name']
-        found_videos = YoutubeSearch(query, max_results=10)
-        videos = found_videos.videos
-        matched_result = None
-        if found_videos:
-            for video in videos:
-                track_name = get_plain_string(music['track_name'].lower())
-                video_name = get_plain_string(video['title'].lower())
-                if track_name in video_name:
-                    matched_result = video
-                    break
-        else:
+        # Video Arama
+        matched_result = search_videos_on_youtube(music)
+
+        if not matched_result:
             skipped_musics.append(music['track_name'])
             continue
 
-        if not matched_result:
-            screen.append_text('No matched result for' + music['track_name'] + ' \n')
-            continue
-
+        # Indirme
         first_yt_link = matched_result['link']
         screen.append_text(music_header + music['track_name'] + downloading + '\n')
         download_link = youtube_url + first_yt_link
@@ -127,8 +133,16 @@ def download_from_spotify(url, screen, directory=None):
 
     wait_threads_loop(threads)
     screen.append_text(all_downloads_finished)
+
+    screen.append_text(summary)
     screen.append_text(str(downloaded_counter) + ' music downloaded\n')
+
+    if screen.directory:
+        screen.append_text('Downloaded Folder:' + screen.directory + '\n')
+    else:
+        screen.append_text('Downloaded Folder:' + give_desktop_path() + '\n')
+
     if skipped_musics:
         screen.append_text(str(len(skipped_musics)) + ' music couldn\'t download:\n')
-        for skipped_music in skipped_musics:
-            screen.append_text(skipped_music + '\n')
+        for index, skipped_music in enumerate(skipped_musics):
+            screen.append_text('\t' + str(index + 1) + skipped_music + '\n')
