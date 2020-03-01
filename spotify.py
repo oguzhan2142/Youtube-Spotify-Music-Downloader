@@ -69,9 +69,9 @@ def selenium_parse(url):
     chrome_options.add_argument("--headless")
 
     if platform.system() == 'Windows':
-        driver = webdriver.Chrome('Driver/chromedriver.exe', options=chrome_options)
+        driver = webdriver.Chrome('Driver/Windows/chromedriver.exe', options=chrome_options)
     else:
-        driver = webdriver.Chrome('Driver/chromedriver', options=chrome_options)
+        driver = webdriver.Chrome('Driver/MacOs/chromedriver', options=chrome_options)
     driver.get(url)
     soup = BeautifulSoup(driver.page_source.encode("utf-8"), 'html.parser')
     driver.quit()
@@ -96,7 +96,7 @@ def download_from_spotify(url, screen, directory=None):
     downloaded_counter = 0
     threads = []
     skipped_musics = []
-    print(len(playlist), ' playlist length')
+    screen.append_text(str(len(playlist)) + 'music found\n')
     for music in playlist:
         query = music['artist'] + ' ' + music['track_name']
         found_videos = YoutubeSearch(query, max_results=10)
