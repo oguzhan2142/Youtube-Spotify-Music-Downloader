@@ -24,15 +24,12 @@ def extract_playlist(playlist_url):
 def download_playlist(playlist_url, screen, directory=None):
     base_url = 'https://www.youtube.com/watch?v='
     playlist = extract_playlist(playlist_url)
-    threads = []
     for music in playlist:
         url = base_url + music['url']
         screen.append_text(music_header + music['title'] + downloading + '\n')
-        thread = Thread(target=download_single_mp3, args=(url, screen, directory, music['title'],))
-        threads.append(thread)
-        thread.start()
-    wait_threads_loop(threads)
+        download_single_mp3(url, screen, directory, music['title'])
     screen.append_text(all_downloads_finished)
+    add_summary_to_screen(screen, downloaded_counter=len(playlist))
 
 
 def download_single_mp3(url, screen, directory=None, music_title=None):

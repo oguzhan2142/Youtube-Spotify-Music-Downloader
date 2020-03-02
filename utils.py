@@ -1,19 +1,27 @@
 import platform
 import os
 
-all_downloads_finished = 'All Downloads Finished Successfully\n'
+all_downloads_finished = '\nProgress Finished Successfully\n'
 downloading = '\ndownloading:       [######              ]'
 converting = '\nconverting:        [############        ]'
 converted = '\nconverted to mp3:  [####################]'
 music_header = '--->'
-summary = '\n*********************Summary*********************\n'
 
 
-def wait_threads_loop(threads):
-    while len(threads) > 0:
-        for thread in threads:
-            if not thread.is_alive():
-                threads.remove(thread)
+def add_summary_to_screen(screen, skipped_musics=None, downloaded_counter=None):
+    screen.append_text('\n*********************Summary*********************\n')
+    if downloaded_counter:
+        screen.append_text(str(downloaded_counter) + ' music downloaded\n')
+
+    if screen.directory:
+        screen.append_text('Downloaded Folder:' + screen.directory + '\n')
+    else:
+        screen.append_text('Downloaded Folder:' + give_desktop_path() + '\n')
+
+    if skipped_musics:
+        screen.append_text(str(len(skipped_musics)) + ' music couldn\'t download:\n')
+        for index, skipped_music in enumerate(skipped_musics):
+            screen.append_text('  ' + str(index + 1) + ') ' + skipped_music + '\n')
 
 
 def give_desktop_path():

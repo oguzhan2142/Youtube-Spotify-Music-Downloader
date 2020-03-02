@@ -111,7 +111,6 @@ def download_from_spotify(url, screen, directory=None):
     youtube_url = 'https://www.youtube.com'
     playlist = selenium_parse(url)
     downloaded_counter = 0
-    threads = []
     skipped_musics = []
     screen.append_text(str(len(playlist)) + ' music found\n')
     for music in playlist:
@@ -126,23 +125,8 @@ def download_from_spotify(url, screen, directory=None):
         first_yt_link = matched_result['link']
         screen.append_text(music_header + music['track_name'] + downloading + '\n')
         download_link = youtube_url + first_yt_link
-        thread = Thread(target=download_single_mp3, args=(download_link, screen, directory, music['track_name'],))
+        download_single_mp3(download_link, screen, directory, music['track_name'])
         downloaded_counter += 1
-        threads.append(thread)
-        thread.start()
 
-    wait_threads_loop(threads)
     screen.append_text(all_downloads_finished)
-
-    screen.append_text(summary)
-    screen.append_text(str(downloaded_counter) + ' music downloaded\n')
-
-    if screen.directory:
-        screen.append_text('Downloaded Folder:' + screen.directory + '\n')
-    else:
-        screen.append_text('Downloaded Folder:' + give_desktop_path() + '\n')
-
-    if skipped_musics:
-        screen.append_text(str(len(skipped_musics)) + ' music couldn\'t download:\n')
-        for index, skipped_music in enumerate(skipped_musics):
-            screen.append_text('\t' + str(index + 1) + skipped_music + '\n')
+    add_summary_to_screen(screen, skipped_musics, downloaded_counter)
