@@ -54,11 +54,11 @@ def parse_track(soup):
     artist = track_row.find(attrs={'class': 'second-line'}).text
     duration = track_row.find(attrs={'class': 'tracklist-duration'}).text
 
-    return {
+    return [{
         'artist': artist,
         'track_name': track_name,
         'duration': give_float_value(duration),
-    }
+    }]
 
 
 def selenium_parse(url):
