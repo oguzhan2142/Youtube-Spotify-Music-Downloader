@@ -81,3 +81,28 @@ def give_float_value(string):
     new_string += '.'
     new_string += array[1]
     return float(new_string)
+
+
+def string_to_querystring(query_string):
+    arr = query_string.split(' ')
+    if len(arr) > 1:
+        modified = ''
+        for index, a in enumerate(arr):
+            modified += a
+            if index == len(arr) - 1:
+                continue
+            modified += '+'
+        return modified
+    else:
+        return query_string
+
+
+def strip_text(string):
+    string = string.replace('\n', '')
+    string = string.strip()
+    return string
+
+
+def extract_date(date_with_day_and_month):
+    date = date_with_day_and_month[-4:]
+    return date

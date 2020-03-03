@@ -1,0 +1,4 @@
+[console_scripts]
+sacad = sacad:cl_main
+sacad_r = sacad.recurse:cl_main
+
