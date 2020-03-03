@@ -1,4 +1,3 @@
-from threading import Thread
 from bs4 import BeautifulSoup
 from youtube_search import YoutubeSearch
 from youtube import download_single_mp3

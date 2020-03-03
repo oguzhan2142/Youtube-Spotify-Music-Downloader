@@ -1,8 +1,8 @@
 import youtube_dl
 from threading import Thread
-from utils import *
 import platform
-import os
+import utils
+import metadata
 
 
 def download_from_yt(url, screen, directory=None):
@@ -10,10 +10,11 @@ def download_from_yt(url, screen, directory=None):
         screen.append_text('Playlist Found\n')
         Thread(target=download_playlist, args=(url, screen, directory,)).start()
     else:
-        Thread(target=download_single_mp3, args=(url, screen, directory,)).start()
+        title = extract_single_title(url)
+        Thread(target=download_single_mp3, args=(url, screen, directory, title,)).start()
 
 
-def extract_playlist(playlist_url):
+def extract_playlist_info(playlist_url):
     ydl = youtube_dl.YoutubeDL({'dump_single_json': True,
                                 'extract_flat': True})
     with ydl:
@@ -21,15 +22,23 @@ def extract_playlist(playlist_url):
     return dic['entries']
 
 
+def extract_single_title(url):
+    ydl = youtube_dl.YoutubeDL({'dump_single_json': True,
+                                'extract_flat': True})
+    with ydl:
+        dic = ydl.extract_info(url, False)
+        return dic['track']
+
+
 def download_playlist(playlist_url, screen, directory=None):
     base_url = 'https://www.youtube.com/watch?v='
-    playlist = extract_playlist(playlist_url)
+    playlist = extract_playlist_info(playlist_url)
     for music in playlist:
         url = base_url + music['url']
-        screen.append_text(music_header + music['title'] + downloading + '\n')
+        screen.append_text(utils.music_header + music['title'] + utils.downloading + '\n')
         download_single_mp3(url, screen, directory, music['title'])
-    screen.append_text(all_downloads_finished)
-    add_summary_to_screen(screen, downloaded_counter=len(playlist))
+    screen.append_text(utils.all_downloads_finished)
+    utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
 
 
 def download_single_mp3(url, screen, directory=None, music_title=None):
@@ -38,14 +47,14 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
             screen.append_text('error occured when downloading\n' + music_title)
         if d['status'] == 'finished':
             if music_title:
-                screen.append_text(music_header + music_title + converting + '\n')
+                screen.append_text(utils.music_header + music_title + utils.converting + '\n')
             else:
-                screen.append_text(music_header + d['filename'] + converting + '\n')
+                screen.append_text(utils.music_header + d['filename'] + utils.converting + '\n')
 
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
     else:
-        download_directory = give_desktop_path()
+        download_directory = utils.give_desktop_path_with_template()
 
     if platform.system() == 'Windows':
         ffmpeg_location = 'ffmpeg/ffmpeg-windows/bin/ffmpeg.exe'
@@ -68,9 +77,10 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
+            metadata.paste_metadata(screen.directory, music_title)
             if music_title:
-                screen.append_text(music_header + music_title + converted + '\n')
+                screen.append_text(utils.music_header + music_title + utils.converted + '\n')
             else:
-                screen.append_text(music_header + 'File' + converted + '\n')
+                screen.append_text(utils.music_header + 'File' + utils.converted + '\n')
     except:
         screen.append_text(music_title + ' Error Occured\n')

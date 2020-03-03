@@ -3,6 +3,7 @@ from tkinter import filedialog
 from tkinter.font import Font
 import platform
 import subprocess
+import utils
 
 
 class Screen:
@@ -11,7 +12,7 @@ class Screen:
         self.frame = Tk()
         self.frame.configure(bg='gray')
         self.frame.resizable(width=False, height=False)
-        self.directory = None
+        self.directory = utils.give_desktop_path()
         self.frame.title('Youtube & Spotify mp3 Downloader')
 
         widgets_font = Font(family="Tahoma", weight='bold', size=15)

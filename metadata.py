@@ -5,6 +5,8 @@ import utils
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC, error
+import youtube
+import glob
 
 
 class Metadata:
@@ -34,11 +36,11 @@ class Metadata:
         # Save Image
         try:
             page = requests.get(pic['src'])
-            self.image = page.content
-            # f_ext = os.path.splitext(pic['src'])[-1]
-            # f_name = 'img{}'.format(f_ext)
-            # with open(f_name, 'wb') as f:
-            #     f.write(image.content)
+            print('resim url:', pic['src'])
+            f_ext = os.path.splitext(pic['src'])[-1]
+            f_name = 'img{}'.format(f_ext)
+            with open(f_name, 'wb') as f:
+                f.write(page.content)
         except:
             print('resim alinamadi')
         # get informations
@@ -54,9 +56,7 @@ class Metadata:
         self.genre = texts[4]
         self.style = texts[5]
 
-    def import_image_to_mp3(self):
-        audio_path = 'test.mp3'
-        picture_path = 'img.jpg'
+    def import_image_to_mp3(self, audio_path, picture_path):
         audio = MP3(audio_path, ID3=ID3)
         # adding ID3 tag if it is not present
         try:
@@ -71,27 +71,28 @@ class Metadata:
         # edit ID3 tags to open and read the picture from the path specified and assign it
         audio.save()  # save the current changes
 
-    def import_tags_to_mp3(self):
-        audio = EasyID3("test.mp3")
+    def import_tags_to_mp3(self, path):
+        audio = EasyID3(path)
         audio["title"] = self.label
         audio["releasecountry"] = self.country
         audio["date"] = utils.extract_date(self.realese_date)
         audio["genre"] = self.genre
         # audio["title"] = u"An example"
         # print('date:', type(audio.))
-        print(audio.valid_keys.keys())
         audio.save()
 
 
-metadata = Metadata()
-metadata.pull_informations('her sey fani')
-metadata.import_tags_to_mp3()
+def paste_metadata(directory, track_name):
+    music_directories = glob.glob(directory + "/*.mp3")
+    path = ''
 
-
-
-
-print(metadata.label)
-print(metadata.country)
-print(metadata.realese_date)
-print(metadata.genre)
-print(metadata.style)
+    for dir in music_directories:
+        if track_name.lower() in dir.lower():
+            path = dir
+            break
+    if path != '':
+        metadata = Metadata()
+        metadata.pull_informations(track_name)
+        metadata.import_tags_to_mp3(path)
+        metadata.import_image_to_mp3(audio_path=path, picture_path='img.jpg')
+        os.remove('img.jpg')
