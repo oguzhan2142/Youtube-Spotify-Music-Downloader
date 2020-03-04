@@ -1,8 +1,10 @@
-import youtube_dl
-from threading import Thread
 import platform
-import utils
+from threading import Thread
+
+import youtube_dl
+
 import metadata
+import utils
 
 
 def download_from_yt(url, screen, directory=None):
@@ -41,7 +43,7 @@ def download_playlist(playlist_url, screen, directory=None):
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
 
 
-def download_single_mp3(url, screen, directory=None, music_title=None):
+def download_single_mp3(url, screen, directory=None, music_title=None, artist=None):
     def my_hook(d):
         if d['status'] == 'error':
             screen.append_text('error occured when downloading\n' + music_title)
@@ -77,7 +79,11 @@ def download_single_mp3(url, screen, directory=None, music_title=None):
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
-            metadata.paste_metadata(screen.directory, music_title)
+            if artist:
+                query = artist + ' ' + music_title
+            else:
+                query = music_title
+            metadata.paste_metadata(screen.directory, query)
             if music_title:
                 screen.append_text(utils.music_header + music_title + utils.converted + '\n')
             else:

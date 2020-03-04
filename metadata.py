@@ -1,12 +1,14 @@
-from bs4 import BeautifulSoup
-import requests
-import os
-import utils
-from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC, error
-import youtube
 import glob
+import os
+
+import requests
+from bs4 import BeautifulSoup
+from mutagen.easyid3 import EasyID3
+from mutagen.id3 import ID3, APIC, error
+from mutagen.mp3 import MP3
+
+import Artwork
+import utils
 
 
 class Metadata:
@@ -30,19 +32,9 @@ class Metadata:
         song_link = base_url + first_box_href
         song_page_r = requests.get(song_link)
         soup = BeautifulSoup(song_page_r.content, 'html.parser')
-        pic_span = soup.find('span', attrs={'class': 'thumbnail_center'})
-        pic = pic_span.find_next('img')
 
-        # Save Image
-        try:
-            page = requests.get(pic['src'])
-            print('resim url:', pic['src'])
-            f_ext = os.path.splitext(pic['src'])[-1]
-            f_name = 'img{}'.format(f_ext)
-            with open(f_name, 'wb') as f:
-                f.write(page.content)
-        except:
-            print('resim alinamadi')
+        Artwork.save_image(query)
+
         # get informations
         all_divs = soup.find_all('div', attrs={'class': 'content'})
         texts = []
@@ -55,6 +47,7 @@ class Metadata:
         self.realese_date = texts[3]
         self.genre = texts[4]
         self.style = texts[5]
+
 
     def import_image_to_mp3(self, audio_path, picture_path):
         audio = MP3(audio_path, ID3=ID3)
@@ -77,8 +70,6 @@ class Metadata:
         audio["releasecountry"] = self.country
         audio["date"] = utils.extract_date(self.realese_date)
         audio["genre"] = self.genre
-        # audio["title"] = u"An example"
-        # print('date:', type(audio.))
         audio.save()
 
 
@@ -86,9 +77,9 @@ def paste_metadata(directory, track_name):
     music_directories = glob.glob(directory + "/*.mp3")
     path = ''
 
-    for dir in music_directories:
-        if track_name.lower() in dir.lower():
-            path = dir
+    for music_directory in music_directories:
+        if track_name.lower() in music_directory.lower():
+            path = music_directory
             break
     if path != '':
         metadata = Metadata()

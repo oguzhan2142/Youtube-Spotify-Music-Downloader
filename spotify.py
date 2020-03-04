@@ -1,9 +1,10 @@
 from bs4 import BeautifulSoup
-from youtube_search import YoutubeSearch
-from youtube import download_single_mp3
-from utils import *
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from youtube_search import YoutubeSearch
+
+from utils import *
+from youtube import download_single_mp3
 
 
 def parse_artist(soup):
@@ -124,7 +125,7 @@ def download_from_spotify(url, screen, directory=None):
         first_yt_link = matched_result['link']
         screen.append_text(music_header + music['track_name'] + downloading + '\n')
         download_link = youtube_url + first_yt_link
-        download_single_mp3(download_link, screen, directory, music['track_name'])
+        download_single_mp3(download_link, screen, directory, music['track_name'], music['artist'])
         downloaded_counter += 1
 
     screen.append_text(all_downloads_finished)
