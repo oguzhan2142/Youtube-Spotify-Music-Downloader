@@ -78,12 +78,18 @@ def download_single_mp3(url, screen, directory=None, music_title=None, artist=No
     }
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            # Download
             ydl.download([url])
+
+            # Edit Metadata
+            print('artist:', artist)
+            print('music:', music_title)
+
             if artist:
-                query = artist + ' ' + music_title
+                metadata.create_metadata(screen.directory, music_title, artist)
             else:
-                query = music_title
-            metadata.paste_metadata(screen.directory, query)
+                metadata.create_metadata(screen.directory, music_title=music_title)
+
             if music_title:
                 screen.append_text(utils.music_header + music_title + utils.converted + '\n')
             else:

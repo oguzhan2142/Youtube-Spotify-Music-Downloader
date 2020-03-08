@@ -7,6 +7,8 @@ converting = '\nconverting:        [############        ]'
 converted = '\nconverted to mp3:  [####################]'
 music_header = '--->'
 
+downloaded_image_path = 'img.png'
+
 
 def add_summary_to_screen(screen, skipped_musics=None, downloaded_counter=None):
     screen.append_text('\n*********************Summary*********************\n')
