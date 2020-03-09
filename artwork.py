@@ -7,7 +7,7 @@ from selenium.webdriver.common.keys import Keys
 import utils
 
 
-def download_image(image_query):
+def download_artwork_google(image_query):
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-gpu")
@@ -21,6 +21,7 @@ def download_image(image_query):
     inputbox.send_keys(Keys.ENTER)
     first_img = driver.find_element_by_xpath('//*[@id="islrg"]/div[1]/div[1]/a[1]/div[1]/img')
     first_img.screenshot(utils.downloaded_image_path)
+    print('google gorseller kullandim query : ', image_query)
 
 
 def download_artwork_discogs(url):

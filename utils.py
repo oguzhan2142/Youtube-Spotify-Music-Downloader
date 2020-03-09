@@ -33,6 +33,7 @@ def add_summary_to_screen(screen, skipped_musics=None, downloaded_counter=None):
         screen.append_text(str(len(skipped_musics)) + ' music couldn\'t download:\n')
         for index, skipped_music in enumerate(skipped_musics):
             screen.append_text('  ' + str(index + 1) + ') ' + skipped_music + '\n')
+    screen.append_text('\n')
 
 
 def give_desktop_path():

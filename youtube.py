@@ -9,12 +9,11 @@ import utils
 
 
 def download_from_yt(url, screen, directory=None):
-    if 'playlist' in url:
+    if 'playlist' or 'list' in url:
         screen.append_text('Playlist Found\n')
         Thread(target=download_playlist, args=(url, screen, directory,)).start()
     else:
         music_title, artist = extract_single_title(url)
-        print('music title  ' ,music_title)
         if '(' and ')' in music_title:
             music_title = utils.remove_parantesis(music_title)
         Thread(target=download_single_mp3, args=(url, screen, directory, music_title, artist,)).start()
@@ -41,7 +40,9 @@ def download_playlist(playlist_url, screen, directory=None):
     playlist = extract_playlist_info(playlist_url)
     for music in playlist:
         url = base_url + music['url']
-        download_single_mp3(url, screen, directory, music['title'])
+        track_title, artist = extract_single_title(url)
+
+        download_single_mp3(url, screen, directory, track_title, artist)
     screen.append_text(utils.all_downloads_finished)
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
 
@@ -51,7 +52,7 @@ def download_single_mp3(url, screen, directory=None, music_title=None, artist=No
         if d['status'] == 'error':
             screen.append_text('error occured when downloading\n' + music_title)
         if d['status'] == 'downloading':
-            screen.append_text(d['_percent_str'])
+            screen.append_text(d['_percent_str'] + ' |')
 
         # if d['status'] == 'finished':
 
@@ -86,14 +87,18 @@ def download_single_mp3(url, screen, directory=None, music_title=None, artist=No
 
             # Download
             screen.append_text('downloading\n')
+            screen.append_text('|')
             ydl.download([url])
     except:
         screen.append_text('Error occured when downloading or converting\n')
         return
     try:
         # Edit Metadata
-        screen.append_text('\nediting metadata\n')
-        metadata.create_metadata(screen.directory, music_title, artist)
-        screen.append_text('metadata edited\n')
+        screen.append_text('\nMetadata |')
+        is_successful = metadata.create_metadata(screen.directory, music_title, artist)
+        if is_successful:
+            screen.append_text(' √ |\n\n')
+        else:
+            screen.append_text(' X |\n\n')
     except error:
         screen.append_text('Error occured when editing metadata\n')

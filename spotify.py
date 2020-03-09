@@ -62,7 +62,7 @@ def parse_track(soup):
     }]
 
 
-def selenium_parse(url):
+def selenium_parse(url,screen):
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-gpu")
@@ -77,15 +77,18 @@ def selenium_parse(url):
     driver.quit()
 
     if 'artist' in url:
-        print('artist page')
+        screen.append_text('Artist Page Found\n')
         return parse_artist(soup)
     elif 'album' in url:
+        screen.append_text('Album Page Found\n')
         print('album page')
         return parse_album_or_playlist(soup)
     elif 'playlist' in url:
+        screen.append_text('Playlist Page Found\n')
         print('playlist page')
         return parse_album_or_playlist(soup)
     else:
+        screen.append_text('Track Page Found\n')
         print('track page')
         return parse_track(soup)
 
@@ -109,7 +112,7 @@ def search_videos_on_youtube(music):
 
 def download_from_spotify(url, screen, directory=None):
     youtube_url = 'https://www.youtube.com'
-    playlist = selenium_parse(url)
+    playlist = selenium_parse(url,screen)
     downloaded_counter = 0
     skipped_musics = []
     screen.append_text(str(len(playlist)) + ' music found\n')

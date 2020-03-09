@@ -21,7 +21,6 @@ class Metadata:
     def search_tags(self, music_title, artist):
         search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
             music_title + ' ' + artist) + '&type=release'
-        print(search_url)
         base_url = 'https://www.discogs.com'
         r = requests.get(search_url)
         base_soup = BeautifulSoup(r.content, 'html.parser')
@@ -35,17 +34,16 @@ class Metadata:
             # seperation for various artists
             if ',' in artist:
                 artist = artist.split(',')[0]
-            print('artist:', artist.lower())
-            print('card artist:', utils.strip_text(card_artist.lower()))
+
             if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
                 card = c
                 break
         if not card:
+            artwork.download_artwork_google(music_title + ' ' + artist)
             return
+
         card_href = card.find('a').get('href')
         song_link = base_url + card_href
-
-        print('song link:', song_link)
         # download artwork
         artwork.download_artwork_discogs(song_link)
 
@@ -77,12 +75,12 @@ class Metadata:
 def create_metadata(directory, music_title, artist):
     music_directories = glob.glob(directory + "/*.mp3")
     path = ''
+    result = False
 
     for music_directory in music_directories:
         if music_title.lower() in music_directory.lower():
             path = music_directory
             break
-
     if path != '':
         metadata = Metadata()
         metadata.search_tags(music_title, artist)
@@ -94,3 +92,6 @@ def create_metadata(directory, music_title, artist):
             artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
             # Remove Downloaded Image if exist
             os.remove(utils.downloaded_image_path)
+            result = True
+
+    return result
