@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from youtube_search import YoutubeSearch
 
 from utils import *
-from youtube import download_single_mp3
+from youtube import download
 
 
 def parse_artist(soup):
@@ -127,8 +127,9 @@ def download_from_spotify(url, screen, directory=None):
         # Indirme
         first_yt_link = matched_result['link']
         download_link = youtube_url + first_yt_link
-        download_single_mp3(download_link, screen, directory, music['track_name'], music['artist'])
+        download(download_link, screen, directory, music['track_name'], music['artist'])
         downloaded_counter += 1
 
     screen.append_text(all_downloads_finished)
     add_summary_to_screen(screen, skipped_musics, downloaded_counter)
+    screen.set_downloadbtn_normal()

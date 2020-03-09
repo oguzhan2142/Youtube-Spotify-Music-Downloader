@@ -16,7 +16,7 @@ def download_from_yt(url, screen, directory=None):
         music_title, artist = extract_single_title(url)
         if '(' and ')' in music_title:
             music_title = utils.remove_parantesis(music_title)
-        Thread(target=download_single_mp3, args=(url, screen, directory, music_title, artist,)).start()
+        Thread(target=download_single, args=(url, screen, directory, music_title, artist,)).start()
 
 
 def extract_playlist_info(playlist_url):
@@ -32,7 +32,13 @@ def extract_single_title(url):
                                 'extract_flat': True})
     with ydl:
         dic = ydl.extract_info(url, False)
+        print(dic.keys())
         return dic['track'], dic['artist']
+
+
+def download_single(url, screen, directory, music_title, artist):
+    download(url, screen, directory, music_title, artist)
+    screen.set_downloadbtn_normal()
 
 
 def download_playlist(playlist_url, screen, directory=None):
@@ -42,12 +48,13 @@ def download_playlist(playlist_url, screen, directory=None):
         url = base_url + music['url']
         track_title, artist = extract_single_title(url)
 
-        download_single_mp3(url, screen, directory, track_title, artist)
+        download(url, screen, directory, track_title, artist)
     screen.append_text(utils.all_downloads_finished)
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
+    screen.set_downloadbtn_normal()
 
 
-def download_single_mp3(url, screen, directory=None, music_title=None, artist=None):
+def download(url, screen, directory=None, music_title=None, artist=None):
     def my_hook(d):
         if d['status'] == 'error':
             screen.append_text('error occured when downloading\n' + music_title)

@@ -87,3 +87,8 @@ class Screen:
         self.console.delete('1.0', END)
         self.console.configure(state=DISABLED)
 
+    def set_downloadbtn_disable(self):
+        self.download_btn.configure(text='Wait...', state=DISABLED)
+
+    def set_downloadbtn_normal(self):
+        self.download_btn.configure(text='Download', state=NORMAL)

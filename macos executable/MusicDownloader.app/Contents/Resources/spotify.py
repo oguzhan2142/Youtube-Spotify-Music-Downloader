@@ -2,7 +2,7 @@ from threading import Thread
 import requests
 from bs4 import BeautifulSoup
 from youtube_search import YoutubeSearch
-from youtube import download_single_mp3
+from youtube import download
 from utils import *
 
 
@@ -24,7 +24,7 @@ def download_from_spotify(url, screen, directory=None):
         first_yt_link = first_result['link']
         screen.append_text(music_header + music + downloading + '\n')
         download_link = youtube_url + first_yt_link
-        thread = Thread(target=download_single_mp3, args=(download_link, screen, directory, music,))
+        thread = Thread(target=download, args=(download_link, screen, directory, music,))
         threads.append(thread)
         thread.start()
     wait_threads_loop(threads)

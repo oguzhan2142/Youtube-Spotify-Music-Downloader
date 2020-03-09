@@ -6,7 +6,7 @@ import requests
 
 def downloading_process():
     url = screen.url_field.get()
-
+    screen.set_downloadbtn_disable()
     try:
         requests.get(url)
     except:
@@ -37,4 +37,5 @@ if __name__ == '__main__':
     screen.folder_btn.configure(command=screen.select_folder)
     screen.clear_console_btn.configure(command=screen.clear_console)
     screen.open_folder_btn.configure(command=screen.open_folder)
+
     screen.screen_show()
