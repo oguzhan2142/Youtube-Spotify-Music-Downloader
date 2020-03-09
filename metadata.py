@@ -19,8 +19,12 @@ class Metadata:
         self.image = ''
 
     def search_tags(self, music_title, artist=None):
-        search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
-            music_title + ' ' + artist) + '&type=release'
+        if artist:
+            search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
+                music_title + ' ' + artist) + '&type=release'
+        else:
+            search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
+                music_title) + '&type=release'
         base_url = 'https://www.discogs.com'
         r = requests.get(search_url)
         base_soup = BeautifulSoup(r.content, 'html.parser')
@@ -29,7 +33,6 @@ class Metadata:
 
         # find related card
         card = None
-        print('len of cards ', len(cards))
         for c in cards:
             card_artist = c.find('h5').text
             if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
@@ -37,6 +40,7 @@ class Metadata:
                 break
         if not card:
             return
+
         card_href = card.find('a').get('href')
         song_link = base_url + card_href
 
@@ -86,7 +90,9 @@ def create_metadata(directory, music_title, artist=None):
             metadata.search_tags(music_title)
 
         # Paste
+
         artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
         metadata.edit_tags(path)
         # Remove Downloaded Image
-        os.remove(utils.downloaded_image_path)
+        if utils.downloaded_image_path:
+            os.remove(utils.downloaded_image_path)

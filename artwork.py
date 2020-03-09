@@ -42,10 +42,15 @@ def edit_artwork(audio_path, picture_path):
     #     audio.add_tags()
     # except error:
     #     pass
-    audio.tags.add(APIC(
-        mime='image/jpeg',
-        type=3, desc=u'Cover',
-        data=open(picture_path, 'rb').read())
-    )
+    if not picture_path:
+        print('Picture path not found\n')
+    try:
+        audio.tags.add(APIC(
+            mime='image/jpeg',
+            type=3, desc=u'Cover',
+            data=open(picture_path, 'rb').read())
+        )
+    except FileNotFoundError:
+        print('IMG file not found')
     # edit ID3 tags to open and read the picture from the path specified and assign it
     audio.save()  # save the current changes

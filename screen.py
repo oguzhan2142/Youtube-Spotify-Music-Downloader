@@ -1,8 +1,9 @@
+import platform
+import subprocess
 from tkinter import *
 from tkinter import filedialog
 from tkinter.font import Font
-import platform
-import subprocess
+
 import utils
 
 
@@ -77,3 +78,6 @@ class Screen:
         self.console.configure(state=NORMAL)
         self.console.delete('1.0', END)
         self.console.configure(state=DISABLED)
+
+
+

@@ -2,9 +2,9 @@ import platform
 import os
 
 all_downloads_finished = '\nProgress Finished Successfully\n'
-downloading = '\ndownloading:       [######              ]'
-converting = '\nconverting:        [############        ]'
-converted = '\nconverted to mp3:  [####################]'
+# downloading = '\ndownloading:       [######              ]'
+# converting = '\nconverting:        [############        ]'
+# converted = '\nconverted to mp3:  [####################]'
 music_header = '--->'
 
 downloaded_image_path = 'img.png'

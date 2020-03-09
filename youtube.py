@@ -2,6 +2,7 @@ import platform
 from threading import Thread
 
 import youtube_dl
+from mutagen.easyid3 import error
 
 import metadata
 import utils
@@ -37,7 +38,6 @@ def download_playlist(playlist_url, screen, directory=None):
     playlist = extract_playlist_info(playlist_url)
     for music in playlist:
         url = base_url + music['url']
-        screen.append_text(utils.music_header + music['title'] + utils.downloading + '\n')
         download_single_mp3(url, screen, directory, music['title'])
     screen.append_text(utils.all_downloads_finished)
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
@@ -47,11 +47,10 @@ def download_single_mp3(url, screen, directory=None, music_title=None, artist=No
     def my_hook(d):
         if d['status'] == 'error':
             screen.append_text('error occured when downloading\n' + music_title)
-        if d['status'] == 'finished':
-            if music_title:
-                screen.append_text(utils.music_header + music_title + utils.converting + '\n')
-            else:
-                screen.append_text(utils.music_header + d['filename'] + utils.converting + '\n')
+        if d['status'] == 'downloading':
+            screen.append_text(d['_percent_str'])
+
+        # if d['status'] == 'finished':
 
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
@@ -78,21 +77,23 @@ def download_single_mp3(url, screen, directory=None, music_title=None, artist=No
     }
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+
+            # Add Information
+            screen.append_text(utils.music_header + music_title + ':\n')
+
             # Download
+            screen.append_text('downloading\n')
             ydl.download([url])
-
-            # Edit Metadata
-            print('artist:', artist)
-            print('music:', music_title)
-
-            if artist:
-                metadata.create_metadata(screen.directory, music_title, artist)
-            else:
-                metadata.create_metadata(screen.directory, music_title=music_title)
-
-            if music_title:
-                screen.append_text(utils.music_header + music_title + utils.converted + '\n')
-            else:
-                screen.append_text(utils.music_header + 'File' + utils.converted + '\n')
     except:
-        screen.append_text(music_title + ' Error Occured\n')
+        screen.append_text('Error occured when downloading or converting\n')
+        return
+    try:
+        # Edit Metadata
+        screen.append_text('\nediting metadata\n')
+        if artist:
+            metadata.create_metadata(screen.directory, music_title, artist)
+        else:
+            metadata.create_metadata(screen.directory, music_title=music_title)
+        screen.append_text('metadata added\n')
+    except error:
+        screen.append_text('Error occured when editing metadata\n')
