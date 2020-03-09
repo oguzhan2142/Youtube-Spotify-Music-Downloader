@@ -42,8 +42,7 @@ def edit_artwork(audio_path, picture_path):
     #     audio.add_tags()
     # except error:
     #     pass
-    if not picture_path:
-        print('Picture path not found\n')
+
     try:
         audio.tags.add(APIC(
             mime='image/jpeg',

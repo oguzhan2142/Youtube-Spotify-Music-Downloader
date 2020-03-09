@@ -90,9 +90,9 @@ def create_metadata(directory, music_title, artist=None):
             metadata.search_tags(music_title)
 
         # Paste
-
-        artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
         metadata.edit_tags(path)
-        # Remove Downloaded Image
-        if utils.downloaded_image_path:
+
+        if os.path.exists(utils.downloaded_image_path):
+            artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
+            # Remove Downloaded Image if exist
             os.remove(utils.downloaded_image_path)
