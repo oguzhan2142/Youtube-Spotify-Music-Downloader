@@ -18,32 +18,34 @@ class Metadata:
         self.style = ''
         self.image = ''
 
-    def search_tags(self, music_title, artist=None):
-        if artist:
-            search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
-                music_title + ' ' + artist) + '&type=release'
-        else:
-            search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
-                music_title) + '&type=release'
+    def search_tags(self, music_title, artist):
+        search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
+            music_title + ' ' + artist) + '&type=release'
+        print(search_url)
         base_url = 'https://www.discogs.com'
         r = requests.get(search_url)
         base_soup = BeautifulSoup(r.content, 'html.parser')
 
         cards = base_soup.find_all('div', attrs={'class': 'card'})
 
-        # find related card
+        # find related card if artist exist
         card = None
         for c in cards:
             card_artist = c.find('h5').text
+            # seperation for various artists
+            if ',' in artist:
+                artist = artist.split(',')[0]
+            print('artist:', artist.lower())
+            print('card artist:', utils.strip_text(card_artist.lower()))
             if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
                 card = c
                 break
         if not card:
             return
-
         card_href = card.find('a').get('href')
         song_link = base_url + card_href
 
+        print('song link:', song_link)
         # download artwork
         artwork.download_artwork_discogs(song_link)
 
@@ -72,7 +74,7 @@ class Metadata:
         audio.save()
 
 
-def create_metadata(directory, music_title, artist=None):
+def create_metadata(directory, music_title, artist):
     music_directories = glob.glob(directory + "/*.mp3")
     path = ''
 
@@ -80,14 +82,10 @@ def create_metadata(directory, music_title, artist=None):
         if music_title.lower() in music_directory.lower():
             path = music_directory
             break
+
     if path != '':
         metadata = Metadata()
-
-        if artist:
-            metadata.search_tags(music_title, artist)
-
-        else:
-            metadata.search_tags(music_title)
+        metadata.search_tags(music_title, artist)
 
         # Paste
         metadata.edit_tags(path)

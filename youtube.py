@@ -13,8 +13,11 @@ def download_from_yt(url, screen, directory=None):
         screen.append_text('Playlist Found\n')
         Thread(target=download_playlist, args=(url, screen, directory,)).start()
     else:
-        title = extract_single_title(url)
-        Thread(target=download_single_mp3, args=(url, screen, directory, title,)).start()
+        music_title, artist = extract_single_title(url)
+        print('music title  ' ,music_title)
+        if '(' and ')' in music_title:
+            music_title = utils.remove_parantesis(music_title)
+        Thread(target=download_single_mp3, args=(url, screen, directory, music_title, artist,)).start()
 
 
 def extract_playlist_info(playlist_url):
@@ -30,7 +33,7 @@ def extract_single_title(url):
                                 'extract_flat': True})
     with ydl:
         dic = ydl.extract_info(url, False)
-        return dic['track']
+        return dic['track'], dic['artist']
 
 
 def download_playlist(playlist_url, screen, directory=None):
@@ -90,10 +93,7 @@ def download_single_mp3(url, screen, directory=None, music_title=None, artist=No
     try:
         # Edit Metadata
         screen.append_text('\nediting metadata\n')
-        if artist:
-            metadata.create_metadata(screen.directory, music_title, artist)
-        else:
-            metadata.create_metadata(screen.directory, music_title=music_title)
-        screen.append_text('metadata added\n')
+        metadata.create_metadata(screen.directory, music_title, artist)
+        screen.append_text('metadata edited\n')
     except error:
         screen.append_text('Error occured when editing metadata\n')

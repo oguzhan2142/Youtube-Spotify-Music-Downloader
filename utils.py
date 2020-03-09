@@ -1,5 +1,5 @@
-import platform
 import os
+import platform
 
 all_downloads_finished = '\nProgress Finished Successfully\n'
 # downloading = '\ndownloading:       [######              ]'
@@ -8,6 +8,15 @@ all_downloads_finished = '\nProgress Finished Successfully\n'
 music_header = '--->'
 
 downloaded_image_path = 'img.png'
+
+
+def remove_parantesis(string_parantesis):
+
+    start_index = string_parantesis.index('(')
+    end_index = string_parantesis.index(')')
+
+    string_without_parantesis = string_parantesis[:start_index] + string_parantesis[end_index + 1:]
+    return strip_text(string_without_parantesis)
 
 
 def add_summary_to_screen(screen, skipped_musics=None, downloaded_counter=None):
