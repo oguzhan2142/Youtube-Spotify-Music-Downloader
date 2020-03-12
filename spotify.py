@@ -1,10 +1,13 @@
+from difflib import SequenceMatcher
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from youtube_search import YoutubeSearch
 
+import youtube
 from utils import *
 from youtube import download
+from youtube import extract_playlist_info
 
 
 def parse_artist(soup):
@@ -22,6 +25,10 @@ def parse_artist(soup):
         })
 
     return playlist
+
+
+def get_similar_ratio(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 
 
 def parse_album_or_playlist(soup):
@@ -62,7 +69,7 @@ def parse_track(soup):
     }]
 
 
-def selenium_parse(url,screen):
+def selenium_parse(url, screen):
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-gpu")
@@ -81,52 +88,65 @@ def selenium_parse(url,screen):
         return parse_artist(soup)
     elif 'album' in url:
         screen.append_text('Album Page Found\n')
-        print('album page')
         return parse_album_or_playlist(soup)
     elif 'playlist' in url:
         screen.append_text('Playlist Page Found\n')
-        print('playlist page')
         return parse_album_or_playlist(soup)
     else:
         screen.append_text('Track Page Found\n')
-        print('track page')
         return parse_track(soup)
 
 
-def search_videos_on_youtube(music):
-    matched_result = None
+def find_highest_related_video(music, duration_in_spotify):
+    youtube_base = 'https://www.youtube.com/watch?v='
     query = music['artist'] + ' ' + music['track_name']
-    found_videos = YoutubeSearch(query, max_results=10)
-    videos = found_videos.videos
+    music_name = get_plain_string(music['track_name']).lower()
+    query = 'https://www.youtube.com/results?search_query=' + string_to_querystring(query)
+    videos = extract_playlist_info(query)
+    high_ratio = 0
+    video_ratio = {}
+    for video in videos:
+        video_name = get_plain_string(video['title']).lower()
+        # Hepsiinin tek tek infosunu almak uzun surutor kafadan sure uydur
+        info = youtube.extract_single_title(youtube_base + video['url'])
+        video_duration = info['duration']
+        video_duration = convert_seconds_floating_and_string(float(video_duration))
+        video_duration = float(video_duration)
+        duration_in_spotify = float(duration_in_spotify)
 
-    if found_videos:
-        for video in videos:
-            track_name = get_plain_string(music['track_name'].lower())
-            video_name = get_plain_string(video['title'].lower())
-            if track_name in video_name:
-                matched_result = video
-                break
+        print('video duration',video_duration)
+        print('spotify duration',duration_in_spotify)
+        print('result',duration_in_spotify > video_duration + 0.3 or duration_in_spotify < video_duration - 0.3)
+        if duration_in_spotify > video_duration + 0.3 or duration_in_spotify < video_duration - 0.3:
+            continue
 
-    return matched_result
+        ratio = get_similar_ratio(music_name, video_name)
+        video_ratio[ratio] = video
+        if ratio > high_ratio:
+            high_ratio = ratio
+    print('high ratio', high_ratio)
+    return video_ratio[high_ratio]
 
 
 def download_from_spotify(url, screen, directory=None):
-    youtube_url = 'https://www.youtube.com'
-    playlist = selenium_parse(url,screen)
+    youtube_base = 'https://www.youtube.com/watch?v='
+    playlist = selenium_parse(url, screen)
     downloaded_counter = 0
     skipped_musics = []
     screen.append_text(str(len(playlist)) + ' music found\n')
     for music in playlist:
         # Video Arama
-        matched_result = search_videos_on_youtube(music)
+        video = find_highest_related_video(music, music['duration'])
+        print(music['track_name'])  # 2.48
+        print(music['duration'])
 
-        if not matched_result:
+        if not video:
             skipped_musics.append(music['track_name'])
             continue
-
         # Indirme
-        first_yt_link = matched_result['link']
-        download_link = youtube_url + first_yt_link
+        best_url = video['url']
+        download_link = youtube_base + best_url
+        print('link:', download_link)
         download(download_link, screen, directory, music['track_name'], music['artist'])
         downloaded_counter += 1
 

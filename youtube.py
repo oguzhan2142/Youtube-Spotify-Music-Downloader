@@ -21,9 +21,11 @@ def download_from_yt(url, screen, directory=None):
 
 def extract_playlist_info(playlist_url):
     ydl = youtube_dl.YoutubeDL({'dump_single_json': True,
-                                'extract_flat': True})
+                                'extract_flat': True,
+                                'forceduration': True,
+                                })
     with ydl:
-        dic = ydl.extract_info(playlist_url, False)
+        dic = ydl.extract_info(playlist_url, download=False)
     return dic['entries']
 
 
@@ -32,8 +34,8 @@ def extract_single_title(url):
                                 'extract_flat': True})
     with ydl:
         dic = ydl.extract_info(url, False)
-        print(dic.keys())
-        return dic['track'], dic['artist']
+        return {'track_name': dic['track'], 'artist': dic['artist'], 'duration': dic['duration']}
+        # return dic['track'], dic['artist']
 
 
 def download_single(url, screen, directory, music_title, artist):

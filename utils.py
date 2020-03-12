@@ -11,7 +11,6 @@ downloaded_image_path = 'img.png'
 
 
 def remove_parantesis(string_parantesis):
-
     start_index = string_parantesis.index('(')
     end_index = string_parantesis.index(')')
 
@@ -88,11 +87,20 @@ def turn_turkishchars_to_englishchars(string='asd'):
     return string
 
 
-def get_plain_string(string='asd'):
+def get_plain_string(string):
     string = remove_remix(string)
     string = remove_noncharacters(string)
     string = turn_turkishchars_to_englishchars(string)
     return string
+
+
+def convert_seconds_floating_and_string(value):
+    minute = int(value // 60)
+    seconds = int(value % 60)
+
+    return str(minute) + '.' + str(seconds)
+
+
 
 
 def give_float_value(string):

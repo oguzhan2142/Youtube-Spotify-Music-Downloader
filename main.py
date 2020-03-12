@@ -6,11 +6,11 @@ import requests
 
 def downloading_process():
     url = screen.url_field.get()
-    screen.set_downloadbtn_disable()
     try:
         requests.get(url)
+        screen.set_downloadbtn_disable()
     except:
-        screen.append_text('Invalid URL\n')
+        screen.append_text('Bad Request\n')
         return
 
     if 'https://www.youtube.com' in url:

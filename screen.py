@@ -58,10 +58,9 @@ class Screen:
 
         E2_font = Font(family="Times New Roman", size=15)
         self.console = Text(self.console_frame, state=DISABLED, pady=3, padx=10, font=E2_font, background="black",
-                            foreground="green", bd=0, wrap=NONE, yscrollcommand=self.scroll.set)
+                            foreground="green", bd=0, yscrollcommand=self.scroll.set)
         self.console.pack()
         self.scroll.config(command=self.console.yview)
-        # self.console.grid(row=2, column=0, columnspan=2, sticky=W + E, ipadx=10, padx=10, pady=10)
 
     def screen_show(self):
         self.frame.mainloop()
