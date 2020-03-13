@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-import youtube
 from utils import *
 from youtube import download
 from youtube import extract_playlist_info
@@ -98,7 +97,7 @@ def selenium_parse(url, screen):
 
 
 def find_highest_related_video(music, duration_in_spotify):
-    youtube_base = 'https://www.youtube.com/watch?v='
+    static_duration = 3.0
     query = music['artist'] + ' ' + music['track_name']
     music_name = get_plain_string(music['track_name']).lower()
     query = 'https://www.youtube.com/results?search_query=' + string_to_querystring(query)
@@ -107,17 +106,8 @@ def find_highest_related_video(music, duration_in_spotify):
     video_ratio = {}
     for video in videos:
         video_name = get_plain_string(video['title']).lower()
-        # Hepsiinin tek tek infosunu almak uzun surutor kafadan sure uydur
-        info = youtube.extract_single_title(youtube_base + video['url'])
-        video_duration = info['duration']
-        video_duration = convert_seconds_floating_and_string(float(video_duration))
-        video_duration = float(video_duration)
         duration_in_spotify = float(duration_in_spotify)
-
-        print('video duration',video_duration)
-        print('spotify duration',duration_in_spotify)
-        print('result',duration_in_spotify > video_duration + 0.3 or duration_in_spotify < video_duration - 0.3)
-        if duration_in_spotify > video_duration + 0.3 or duration_in_spotify < video_duration - 0.3:
+        if duration_in_spotify > static_duration + 1.5 or duration_in_spotify < static_duration - 1.5:
             continue
 
         ratio = get_similar_ratio(music_name, video_name)
@@ -139,10 +129,10 @@ def download_from_spotify(url, screen, directory=None):
         video = find_highest_related_video(music, music['duration'])
         print(music['track_name'])  # 2.48
         print(music['duration'])
-
         if not video:
             skipped_musics.append(music['track_name'])
             continue
+
         # Indirme
         best_url = video['url']
         download_link = youtube_base + best_url
