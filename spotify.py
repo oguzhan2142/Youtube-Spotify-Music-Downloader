@@ -96,26 +96,36 @@ def selenium_parse(url, screen):
         return parse_track(soup)
 
 
-def find_highest_related_video(music, duration_in_spotify):
+def find_highest_related_video(music):
     static_duration = 3.0
     query = music['artist'] + ' ' + music['track_name']
-    music_name = get_plain_string(music['track_name']).lower()
+    music_name = music['track_name'].lower()
     query = 'https://www.youtube.com/results?search_query=' + string_to_querystring(query)
     videos = extract_playlist_info(query)
     high_ratio = 0
     video_ratio = {}
     for video in videos:
-        video_name = get_plain_string(video['title']).lower()
-        duration_in_spotify = float(duration_in_spotify)
-        if duration_in_spotify > static_duration + 1.5 or duration_in_spotify < static_duration - 1.5:
+        # bazilarinda title yok
+        if 'title' not in video:
             continue
+        video_name = video['title'].lower()
+        duration_in_spotify = float(music['duration'])
 
-        ratio = get_similar_ratio(music_name, video_name)
+        if duration_in_spotify > static_duration + 2.0 or duration_in_spotify < static_duration - 2.0:
+            continue
+        print('video_name:', video_name)
+        print('music_name:', music_name)
+        print('query:', music['artist'] + ' ' + music['track_name'])
+        ratio = get_similar_ratio(music['artist'] + ' ' + music['track_name'], video_name)
         video_ratio[ratio] = video
         if ratio > high_ratio:
             high_ratio = ratio
     print('high ratio', high_ratio)
-    return video_ratio[high_ratio]
+
+    if high_ratio in video_ratio:
+        return video_ratio[high_ratio]
+    else:
+        return videos[0]
 
 
 def download_from_spotify(url, screen, directory=None):
@@ -126,9 +136,10 @@ def download_from_spotify(url, screen, directory=None):
     screen.append_text(str(len(playlist)) + ' music found\n')
     for music in playlist:
         # Video Arama
-        video = find_highest_related_video(music, music['duration'])
         print(music['track_name'])  # 2.48
         print(music['duration'])
+        video = find_highest_related_video(music)
+
         if not video:
             skipped_musics.append(music['track_name'])
             continue
