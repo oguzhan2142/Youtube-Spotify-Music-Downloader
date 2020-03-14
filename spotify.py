@@ -98,7 +98,7 @@ def selenium_parse(url, screen):
 
 def find_highest_related_video(music):
     static_duration = 3.0
-    artist_track = music['artist'] + ' ' + music['track_name']
+    artist_track = music['track_name'] + ' ' + music['artist']
     music_name = music['track_name'].lower()
     search_link = 'https://www.youtube.com/results?search_query=' + string_to_querystring(artist_track)
     videos = extract_playlist_info(search_link)
@@ -114,10 +114,12 @@ def find_highest_related_video(music):
         if duration_in_spotify > static_duration + 2.0 or duration_in_spotify < static_duration - 2.0:
             continue
 
-        print('video_name:', video_name)
-        print('query:', artist_track.lower())
+        # print('video_name:', video_name)
+        # print('query:', artist_track.lower())
         ratio = get_similar_ratio(artist_track.lower(), video_name)
         video_ratio[ratio] = video
+        print('music and artist:', artist_track.lower())
+        print('video name:', video_name)
         if ratio > high_ratio:
             high_ratio = ratio
     print('highest ratio:', high_ratio)

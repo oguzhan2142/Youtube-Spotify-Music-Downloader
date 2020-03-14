@@ -18,6 +18,9 @@ class Metadata:
         self.style = ''
         self.image = ''
 
+    def download_artwork(self, download_link):
+        pass
+
     def search_tags(self, music_title, artist):
         search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
             music_title + ' ' + artist) + '&type=release'
@@ -38,12 +41,22 @@ class Metadata:
             if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
                 card = c
                 break
-        if not card:
+
+        # if not card:
+        #     artwork.download_artwork_google(music_title + ' ' + artist)
+        #     return
+
+        print('CARD STATUS')
+        if card:
+            print('card exist')
+        else:
             artwork.download_artwork_google(music_title + ' ' + artist)
+            print('card does not exist downloaded from google')
             return
 
         card_href = card.find('a').get('href')
         song_link = base_url + card_href
+
         # download artwork
         artwork.download_artwork_discogs(song_link)
 
@@ -81,10 +94,12 @@ def create_metadata(directory, music_title, artist):
         if music_title.lower() in music_directory.lower():
             path = music_directory
             break
+    print('create_metadatanin icinde path ----> ', path)
     if path != '':
         metadata = Metadata()
 
         # Search tags and download Image
+
         metadata.search_tags(music_title, artist)
 
         # Paste tags

@@ -20,9 +20,20 @@ def download_from_yt(url, screen, directory=None):
 
 
 def extract_playlist_info(playlist_url):
+    class MyLogger(object):
+        def debug(self, msg):
+            pass
+
+        def warning(self, msg):
+            pass
+
+        def error(self, msg):
+            print(msg)
+
     ydl = youtube_dl.YoutubeDL({'dump_single_json': True,
                                 'extract_flat': True,
                                 'forceduration': True,
+                                'logger': MyLogger(),
                                 })
     with ydl:
         dic = ydl.extract_info(playlist_url, download=False)
@@ -104,7 +115,11 @@ def download(url, screen, directory=None, music_title=None, artist=None):
     try:
         # Edit Metadata
         screen.append_text('\nMetadata |')
+        print('MUSIC FOR')
+        print('music title', music_title)
+        print('artist', artist)
         is_successful = metadata.create_metadata(screen.directory, music_title, artist)
+        print('is_success', is_successful)
         if is_successful:
             screen.append_text(' √ |\n\n')
         else:

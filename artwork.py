@@ -17,11 +17,13 @@ def download_artwork_google(image_query):
 
     driver.get('https://www.google.com.tr/imghp?hl=tr&tab=wi&ogbl')
     inputbox = driver.find_element_by_xpath('//*[@id="sbtc"]/div/div[2]/input')
-    inputbox.send_keys(image_query)
+    inputbox.send_keys(image_query + ' artwork')
     inputbox.send_keys(Keys.ENTER)
     first_img = driver.find_element_by_xpath('//*[@id="islrg"]/div[1]/div[1]/a[1]/div[1]/img')
     first_img.screenshot(utils.downloaded_image_path)
     print('google gorseller kullandim query : ', image_query)
+
+
 
 
 def download_artwork_discogs(url):
