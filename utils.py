@@ -5,7 +5,7 @@ all_downloads_finished = '\nProgress Finished Successfully\n'
 # downloading = '\ndownloading:       [######              ]'
 # converting = '\nconverting:        [############        ]'
 # converted = '\nconverted to mp3:  [####################]'
-music_header = '--->'
+header = '************\n'
 
 downloaded_image_path = 'img.png'
 

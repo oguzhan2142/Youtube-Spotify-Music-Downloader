@@ -111,7 +111,10 @@ def find_highest_related_video(music):
         video_name = video['title'].lower()
         duration_in_spotify = float(music['duration'])
 
-        if duration_in_spotify > static_duration + 2.0 or duration_in_spotify < static_duration - 2.0:
+        if music_name not in video_name:
+            continue
+
+        if duration_in_spotify > static_duration + 2.5 or duration_in_spotify < static_duration - 2.0:
             continue
 
         # print('video_name:', video_name)
@@ -120,8 +123,10 @@ def find_highest_related_video(music):
         video_ratio[ratio] = video
         print('music and artist:', artist_track.lower())
         print('video name:', video_name)
+        print('similar ratio:', ratio)
         if ratio > high_ratio:
             high_ratio = ratio
+
     print('highest ratio:', high_ratio)
 
     if high_ratio in video_ratio:

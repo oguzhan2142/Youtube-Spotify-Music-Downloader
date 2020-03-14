@@ -22,7 +22,7 @@ def download_from_spotify(url, screen, directory=None):
             screen.append_text('Error when search on Youtube\n')
             continue
         first_yt_link = first_result['link']
-        screen.append_text(music_header + music + downloading + '\n')
+        screen.append_text(header + music + downloading + '\n')
         download_link = youtube_url + first_yt_link
         thread = Thread(target=download, args=(download_link, screen, directory, music,))
         threads.append(thread)
