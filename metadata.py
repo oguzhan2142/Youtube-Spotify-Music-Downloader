@@ -83,9 +83,11 @@ def create_metadata(directory, music_title, artist):
             break
     if path != '':
         metadata = Metadata()
+
+        # Search tags and download Image
         metadata.search_tags(music_title, artist)
 
-        # Paste
+        # Paste tags
         metadata.edit_tags(path)
 
         if os.path.exists(utils.downloaded_image_path):

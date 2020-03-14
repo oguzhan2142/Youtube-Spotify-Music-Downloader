@@ -98,10 +98,10 @@ def selenium_parse(url, screen):
 
 def find_highest_related_video(music):
     static_duration = 3.0
-    query = music['artist'] + ' ' + music['track_name']
+    artist_track = music['artist'] + ' ' + music['track_name']
     music_name = music['track_name'].lower()
-    query = 'https://www.youtube.com/results?search_query=' + string_to_querystring(query)
-    videos = extract_playlist_info(query)
+    search_link = 'https://www.youtube.com/results?search_query=' + string_to_querystring(artist_track)
+    videos = extract_playlist_info(search_link)
     high_ratio = 0
     video_ratio = {}
     for video in videos:
@@ -113,14 +113,14 @@ def find_highest_related_video(music):
 
         if duration_in_spotify > static_duration + 2.0 or duration_in_spotify < static_duration - 2.0:
             continue
+
         print('video_name:', video_name)
-        print('music_name:', music_name)
-        print('query:', music['artist'] + ' ' + music['track_name'])
-        ratio = get_similar_ratio(music['artist'] + ' ' + music['track_name'], video_name)
+        print('query:', artist_track.lower())
+        ratio = get_similar_ratio(artist_track.lower(), video_name)
         video_ratio[ratio] = video
         if ratio > high_ratio:
             high_ratio = ratio
-    print('high ratio', high_ratio)
+    print('highest ratio:', high_ratio)
 
     if high_ratio in video_ratio:
         return video_ratio[high_ratio]
@@ -136,8 +136,7 @@ def download_from_spotify(url, screen, directory=None):
     screen.append_text(str(len(playlist)) + ' music found\n')
     for music in playlist:
         # Video Arama
-        print(music['track_name'])  # 2.48
-        print(music['duration'])
+
         video = find_highest_related_video(music)
 
         if not video:
