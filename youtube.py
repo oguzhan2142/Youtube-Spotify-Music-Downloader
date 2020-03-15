@@ -126,8 +126,11 @@ def download(url, screen, directory=None, music_title=None, artist=None):
             # Download
             screen.append_text('downloading\n')
             screen.append_text('|')
+            import time
+            now = int(round(time.time() * 1000))
             ydl.download([url])
-
+            last = int(round(time.time() * 1000))
+            print('diff download:', (last - now) / 1000, ' sec')
     except:
         screen.append_text('Error occured when downloading or converting\n')
         return
@@ -140,9 +143,10 @@ def download(url, screen, directory=None, music_title=None, artist=None):
         global path
         path = path[:-4]
         path = path + 'mp3'
-        print('path:', path)
+        now = int(round(time.time() * 1000))
         is_successful = metadata.create_metadata(path, music_title, artist)
-        print('is_success', is_successful)
+        last = int(round(time.time() * 1000))
+        print('diff total metadata:', (last - now) / 1000, ' sec')
         if is_successful:
             screen.append_text(' √ |\n\n')
         else:

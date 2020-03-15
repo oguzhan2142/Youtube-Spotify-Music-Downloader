@@ -139,7 +139,6 @@ def download_from_spotify(url, screen, directory=None):
         # Indirme
         best_url = video['url']
         download_link = youtube_base + best_url
-        print('link:', download_link)
         download(download_link, screen, directory, music['track_name'], music['artist'])
         downloaded_counter += 1
 

@@ -1,4 +1,3 @@
-import glob
 import os
 
 import requests
@@ -25,12 +24,12 @@ class Metadata:
         print('search_tags fonksiyonuna girdi')
         search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
             music_title + ' ' + artist) + '&type=release'
+        print('search url:', search_url)
         base_url = 'https://www.discogs.com'
         r = requests.get(search_url)
         base_soup = BeautifulSoup(r.content, 'html.parser')
 
         cards = base_soup.find_all('div', attrs={'class': 'card'})
-
         # find related card if artist exist
         card = None
         for c in cards:
@@ -38,7 +37,8 @@ class Metadata:
             # seperation for various artists
             if ',' in artist:
                 artist = artist.split(',')[0]
-
+            print('artist:', utils.strip_text(artist.lower()))
+            print('card_artist:', utils.strip_text(card_artist.lower()))
             if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
                 card = c
                 break
@@ -58,12 +58,16 @@ class Metadata:
         card_href = card.find('a').get('href')
         song_link = base_url + card_href
 
-        # download artwork
-        artwork.download_artwork_discogs(song_link)
-        print('metadata song_link', song_link)
-
         song_page_r = requests.get(song_link)
         soup = BeautifulSoup(song_page_r.content, 'html.parser')
+
+        # download artwork
+        # parse img path
+        img_span = soup.find(attrs={'class': 'thumbnail_center'})
+        img = img_span.find_next()
+        img_link = img['src']
+        artwork.download_discord(img_link)
+        print('metadata song_link', song_link)
 
         # get informations
         all_divs = soup.find_all('div', attrs={'class': 'content'})
@@ -88,7 +92,7 @@ class Metadata:
         audio.save()
 
 
-def create_metadata( path, music_title, artist):
+def create_metadata(path, music_title, artist):
     print('create_metadata icine girdi')
     result = False
     metadata = Metadata()
