@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from utils import *
 from youtube import download
 from youtube import extract_playlist_info
-
+import time
 
 def parse_artist(soup):
     artist = soup.find(attrs={'class': 'large'})
@@ -122,6 +122,7 @@ def find_highest_related_video(music):
 
 
 def download_from_spotify(url, screen, directory=None):
+    now = int(round(time.time() * 1000))
     youtube_base = 'https://www.youtube.com/watch?v='
     playlist = selenium_parse(url, screen)
     downloaded_counter = 0
@@ -141,7 +142,9 @@ def download_from_spotify(url, screen, directory=None):
         download_link = youtube_base + best_url
         download(download_link, screen, directory, music['track_name'], music['artist'])
         downloaded_counter += 1
-
+    last = int(round(time.time() * 1000))
+    elapsed_time = (last - now) / 1000
     screen.append_text(all_downloads_finished)
     add_summary_to_screen(screen, skipped_musics, downloaded_counter)
+    screen.append_text('elapsed time:' + str(elapsed_time) + ' sec\n')
     screen.set_downloadbtn_normal()

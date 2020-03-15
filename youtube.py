@@ -1,4 +1,5 @@
 import platform
+import time
 from threading import Thread
 
 import youtube_dl
@@ -55,6 +56,7 @@ def download_single(url, screen, directory, music_title, artist):
 
 
 def download_playlist(playlist_url, screen, directory=None):
+    now = int(round(time.time() * 1000))
     base_url = 'https://www.youtube.com/watch?v='
     playlist = extract_playlist_info(playlist_url)
     for music in playlist:
@@ -65,12 +67,16 @@ def download_playlist(playlist_url, screen, directory=None):
     screen.append_text(utils.all_downloads_finished)
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
     screen.set_downloadbtn_normal()
+    last = int(round(time.time() * 1000))
+    elapsed_time = (last - now) / 1000
+    screen.append_text('elapsed time:' + str(elapsed_time) + ' sec\n')
 
 
 path = None
 
 
 def download(url, screen, directory=None, music_title=None, artist=None):
+    now = int(round(time.time() * 1000))
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
     else:
@@ -126,11 +132,7 @@ def download(url, screen, directory=None, music_title=None, artist=None):
             # Download
             screen.append_text('downloading\n')
             screen.append_text('|')
-            import time
-            now = int(round(time.time() * 1000))
             ydl.download([url])
-            last = int(round(time.time() * 1000))
-            print('diff download:', (last - now) / 1000, ' sec')
     except:
         screen.append_text('Error occured when downloading or converting\n')
         return
@@ -143,13 +145,16 @@ def download(url, screen, directory=None, music_title=None, artist=None):
         global path
         path = path[:-4]
         path = path + 'mp3'
-        now = int(round(time.time() * 1000))
+
         is_successful = metadata.create_metadata(path, music_title, artist)
-        last = int(round(time.time() * 1000))
-        print('diff total metadata:', (last - now) / 1000, ' sec')
+
         if is_successful:
-            screen.append_text(' √ |\n\n')
+            screen.append_text(' √ |\n')
         else:
-            screen.append_text(' X |\n\n')
+            screen.append_text(' X |\n')
+
     except error:
         screen.append_text('Error occured when editing metadata\n')
+    last = int(round(time.time() * 1000))
+    elapsed_time = (last - now) / 1000
+    screen.append_text('elapsed time:' + str(elapsed_time) + ' sec\n\n')
