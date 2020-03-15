@@ -92,7 +92,7 @@ class Metadata:
         audio.save()
 
 
-def create_metadata(path, music_title, artist):
+def create_metadata( path, music_title, artist):
     print('create_metadata icine girdi')
     result = False
     metadata = Metadata()
@@ -102,11 +102,14 @@ def create_metadata(path, music_title, artist):
     metadata.search_tags(music_title, artist)
 
     # Paste tags
-    metadata.edit_tags(path)
-    if os.path.exists(utils.downloaded_image_path):
-        artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
-        # Remove Downloaded Image if exist
-        os.remove(utils.downloaded_image_path)
-        result = True
-    print('create_metadatadan cikti')
+    try:
+        metadata.edit_tags(path)
+        if os.path.exists(utils.downloaded_image_path):
+            artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
+            # Remove Downloaded Image if exist
+            os.remove(utils.downloaded_image_path)
+            result = True
+        print('create_metadatadan cikti')
+    except:
+        print('error inside create_metadata')
     return result

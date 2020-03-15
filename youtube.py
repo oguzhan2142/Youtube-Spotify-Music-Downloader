@@ -3,7 +3,6 @@ import time
 from threading import Thread
 
 import youtube_dl
-from mutagen.easyid3 import error
 
 import metadata
 import utils
@@ -136,25 +135,26 @@ def download(url, screen, directory=None, music_title=None, artist=None):
     except:
         screen.append_text('Error occured when downloading or converting\n')
         return
-    try:
-        # Edit Metadata
-        screen.append_text('\nMetadata |')
-        print('MUSIC FOR')
-        print('music title', music_title)
-        print('artist', artist)
-        global path
-        path = path[:-4]
-        path = path + 'mp3'
 
-        is_successful = metadata.create_metadata(path, music_title, artist)
+    # Edit Metadata
+    screen.append_text('\nMetadata |')
+    print('MUSIC FOR')
+    print('music title', music_title)
+    print('artist', artist)
+    global path
+    print('path in download:', path)
+    if path.endswith('webm'):
+        path = path.replace('webm', 'mp3')
+    else:
+        path = path.replace('m4a','mp3')
+    print('path in download:', path)
 
-        if is_successful:
-            screen.append_text(' √ |\n')
-        else:
-            screen.append_text(' X |\n')
+    is_successful = metadata.create_metadata(path, music_title, artist)
+    if is_successful:
+        screen.append_text(' √ |\n')
+    else:
+        screen.append_text(' X |\n')
 
-    except error:
-        screen.append_text('Error occured when editing metadata\n')
     last = int(round(time.time() * 1000))
     elapsed_time = (last - now) / 1000
-    screen.append_text('elapsed time:' + str(elapsed_time) + ' sec\n\n')
+    screen.append_text('total elapsed time:' + str(elapsed_time) + ' sec\n\n')

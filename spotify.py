@@ -146,5 +146,5 @@ def download_from_spotify(url, screen, directory=None):
     elapsed_time = (last - now) / 1000
     screen.append_text(all_downloads_finished)
     add_summary_to_screen(screen, skipped_musics, downloaded_counter)
-    screen.append_text('elapsed time:' + str(elapsed_time) + ' sec\n')
+    screen.append_text('total elapsed time:' + str(elapsed_time) + ' sec\n')
     screen.set_downloadbtn_normal()
