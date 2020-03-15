@@ -22,6 +22,7 @@ class Metadata:
         pass
 
     def search_tags(self, music_title, artist):
+        print('search_tags fonksiyonuna girdi')
         search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
             music_title + ' ' + artist) + '&type=release'
         base_url = 'https://www.discogs.com'
@@ -59,6 +60,7 @@ class Metadata:
 
         # download artwork
         artwork.download_artwork_discogs(song_link)
+        print('metadata song_link', song_link)
 
         song_page_r = requests.get(song_link)
         soup = BeautifulSoup(song_page_r.content, 'html.parser')
@@ -75,6 +77,7 @@ class Metadata:
         self.realese_date = texts[3]
         self.genre = texts[4]
         self.style = texts[5]
+        print('search path fonksiyonundan cikti')
 
     def edit_tags(self, path):
         audio = EasyID3(path)
@@ -85,30 +88,21 @@ class Metadata:
         audio.save()
 
 
-def create_metadata(directory, music_title, artist):
-    music_directories = glob.glob(directory + "/*.mp3")
-    path = ''
+def create_metadata( path, music_title, artist):
+    print('create_metadata icine girdi')
     result = False
+    metadata = Metadata()
 
-    for music_directory in music_directories:
-        if music_title.lower() in music_directory.lower():
-            path = music_directory
-            break
-    print('create_metadatanin icinde path ----> ', path)
-    if path != '':
-        metadata = Metadata()
+    # Search tags and download Image
 
-        # Search tags and download Image
+    metadata.search_tags(music_title, artist)
 
-        metadata.search_tags(music_title, artist)
-
-        # Paste tags
-        metadata.edit_tags(path)
-
-        if os.path.exists(utils.downloaded_image_path):
-            artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
-            # Remove Downloaded Image if exist
-            os.remove(utils.downloaded_image_path)
-            result = True
-
+    # Paste tags
+    metadata.edit_tags(path)
+    if os.path.exists(utils.downloaded_image_path):
+        artwork.edit_artwork(audio_path=path, picture_path=utils.downloaded_image_path)
+        # Remove Downloaded Image if exist
+        os.remove(utils.downloaded_image_path)
+        result = True
+    print('create_metadatadan cikti')
     return result

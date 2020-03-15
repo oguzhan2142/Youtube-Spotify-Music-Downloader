@@ -67,19 +67,34 @@ def download_playlist(playlist_url, screen, directory=None):
     screen.set_downloadbtn_normal()
 
 
+path = None
+
+
 def download(url, screen, directory=None, music_title=None, artist=None):
-    def my_hook(d):
-        if d['status'] == 'error':
-            screen.append_text('error occured when downloading\n' + music_title)
-        if d['status'] == 'downloading':
-            screen.append_text(d['_percent_str'] + ' |')
-
-        # if d['status'] == 'finished':
-
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
     else:
         download_directory = utils.give_desktop_path_with_template()
+
+    class MyLogger(object):
+        def debug(self, msg):
+            pass
+
+        def warning(self, msg):
+            pass
+
+        def error(self, msg):
+            print(msg)
+
+    def my_hook(d):
+        # d['filename']
+        if d['status'] == 'error':
+            screen.append_text('error occured when downloading\n' + music_title)
+        if d['status'] == 'downloading':
+            screen.append_text(d['_percent_str'] + ' |')
+        if d['status'] == 'finished':
+            global path
+            path = d['filename']
 
     if platform.system() == 'Windows':
         ffmpeg_location = 'ffmpeg/ffmpeg-windows/bin/ffmpeg.exe'
@@ -88,16 +103,17 @@ def download(url, screen, directory=None, music_title=None, artist=None):
 
     ydl_opts = {
         'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
+        'postprocessors': [
+            {'key': 'FFmpegExtractAudio',
+             'preferredcodec': 'mp3',
+             'preferredquality': '192',
+             }],
 
         'ffmpeg_location': ffmpeg_location,
         'outtmpl': download_directory,
         'progress_hooks': [my_hook],
         'noplaylist': True,
+        'logger': MyLogger(),
     }
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -111,6 +127,7 @@ def download(url, screen, directory=None, music_title=None, artist=None):
             screen.append_text('downloading\n')
             screen.append_text('|')
             ydl.download([url])
+
     except:
         screen.append_text('Error occured when downloading or converting\n')
         return
@@ -120,7 +137,11 @@ def download(url, screen, directory=None, music_title=None, artist=None):
         print('MUSIC FOR')
         print('music title', music_title)
         print('artist', artist)
-        is_successful = metadata.create_metadata(screen.directory, music_title, artist)
+        global path
+        path = path[:-4]
+        path = path + 'mp3'
+        print('path:', path)
+        is_successful = metadata.create_metadata(path, music_title, artist)
         print('is_success', is_successful)
         if is_successful:
             screen.append_text(' √ |\n\n')

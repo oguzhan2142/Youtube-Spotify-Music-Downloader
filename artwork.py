@@ -23,9 +23,6 @@ def download_artwork_google(image_query):
     first_img.screenshot(utils.downloaded_image_path)
     print('google gorseller kullandim query : ', image_query)
 
-
-
-
 def download_artwork_discogs(url):
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
