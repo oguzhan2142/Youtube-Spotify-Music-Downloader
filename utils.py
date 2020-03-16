@@ -10,6 +10,12 @@ header = '************\n'
 downloaded_image_path = 'img.png'
 
 
+def remove_img():
+    if os.path.exists(downloaded_image_path):
+        # Remove Downloaded Image if exist
+        os.remove(downloaded_image_path)
+
+
 def remove_parantesis(string_parantesis):
     start_index = string_parantesis.index('(')
     end_index = string_parantesis.index(')')
@@ -99,8 +105,6 @@ def convert_seconds_floating_and_string(value):
     seconds = int(value % 60)
 
     return str(minute) + '.' + str(seconds)
-
-
 
 
 def give_float_value(string):

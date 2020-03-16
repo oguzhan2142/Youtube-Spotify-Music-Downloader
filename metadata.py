@@ -27,22 +27,24 @@ class Metadata:
         if '(' in music_title and ')' in music_title:
             music_title = utils.remove_parantesis(music_title)
 
+        # Search for album:
+
         album_search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
             music_title + ' ' + artist) + '&format_exact=Album&type=release'
-        # search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
-        #     music_title + ' ' + artist) + '&type=release'
-        # print('search url:', album_search_url)
+        print(album_search_url)
+
         base_url = 'https://www.discogs.com'
         r = requests.get(album_search_url)
         base_soup = BeautifulSoup(r.content, 'html.parser')
-
+        song_link = None
         # Parse albumname
         album_name_a = base_soup.find('a', attrs={'class': 'search_result_title'})
-
         if album_name_a:
+            song_link = base_url + album_name_a['href']
             self.album = album_name_a.text
+        # Search for CD:
+
         else:
-            # print('CD ariyor')
             cd_search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
                 music_title + ' ' + artist) + '&format_exact=CD&type=release'
             r = requests.get(cd_search_url)
@@ -51,37 +53,32 @@ class Metadata:
             # Parse albumname
             album_name_a = base_soup.find('a', attrs={'class': 'search_result_title'})
             if album_name_a:
+                song_link = base_url + album_name_a['href']
                 self.album = album_name_a.text
 
-        # print('album name: ',self.album)
-        cards = base_soup.find_all('div', attrs={'class': 'card'})
-        # find related card if artist exist
-        card = None
-        for c in cards:
-            card_artist = c.find('h5').text
-            # seperation for various artists
-            if ',' in artist:
-                artist = artist.split(',')[0]
-            # print('artist:', utils.strip_text(artist.lower()))
-            # print('card_artist:', utils.strip_text(card_artist.lower()))
-            if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
-                card = c
-                break
+        self.label = music_title
 
-        # if not card:
-        #     artwork.download_artwork_google(music_title + ' ' + artist)
-        #     return
+        # cards = base_soup.find_all('div', attrs={'class': 'card'})
+        #
+        # card = None
+        # for c in cards:
+        #     card_artist = c.find('h5').text
+        #     # seperation for various artists
+        #     print(utils.strip_text(artist.lower()))
+        #     print(utils.strip_text(card_artist.lower()))
+        #     if ',' in artist:
+        #         artist = artist.split(',')[0]
+        #     if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
+        #         card = c
+        #         break
 
-        # print('CARD STATUS')
-        if card:
-            print('card exist')
-        else:
+        if not song_link:
             artwork.download_artwork_google(music_title + ' ' + artist)
-            # print('card does not exist downloaded from google')
+            print('card yoktu google dan indirdim')
             return
 
-        card_href = card.find('a').get('href')
-        song_link = base_url + card_href
+        # card_href = card.find('a').get('href')
+        # song_link = base_url + card_href
 
         song_page_r = requests.get(song_link)
         soup = BeautifulSoup(song_page_r.content, 'html.parser')
@@ -101,7 +98,7 @@ class Metadata:
             # Label: # Format:# Country:# Released:# Genre:# Style:
             texts.append(utils.strip_text(div.text))
 
-        self.label = music_title
+        # self.label = music_title
         self.format = texts[1]
         self.country = texts[2]
         self.realese_date = texts[3]

@@ -97,6 +97,7 @@ def selenium_parse(url, screen):
         return parse_track(soup)
 
 
+
 def find_highest_related_video(music):
     static_duration = 3.0
     music_name = music['track_name'].lower()
