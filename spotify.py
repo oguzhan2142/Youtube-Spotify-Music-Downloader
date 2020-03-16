@@ -1,3 +1,4 @@
+import time
 from difflib import SequenceMatcher
 
 from bs4 import BeautifulSoup
@@ -7,7 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from utils import *
 from youtube import download
 from youtube import extract_playlist_info
-import time
+
 
 def parse_artist(soup):
     artist = soup.find(attrs={'class': 'large'})
@@ -128,7 +129,7 @@ def download_from_spotify(url, screen, directory=None):
     downloaded_counter = 0
     skipped_musics = []
     screen.append_text(str(len(playlist)) + ' music found\n')
-    for music in playlist:
+    for index, music in enumerate(playlist, start=1):
         # Video Arama
 
         video = find_highest_related_video(music)
@@ -140,6 +141,7 @@ def download_from_spotify(url, screen, directory=None):
         # Indirme
         best_url = video['url']
         download_link = youtube_base + best_url
+        screen.append_text(str(index) + '-')
         download(download_link, screen, directory, music['track_name'], music['artist'])
         downloaded_counter += 1
     last = int(round(time.time() * 1000))

@@ -11,6 +11,8 @@ import utils
 class Metadata:
     def __init__(self):
         self.label = ''
+        self.format = ''
+        self.album = ''
         self.country = ''
         self.realese_date = ''
         self.genre = ''
@@ -22,13 +24,35 @@ class Metadata:
 
     def search_tags(self, music_title, artist):
         print('search_tags fonksiyonuna girdi')
-        search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
-            music_title + ' ' + artist) + '&type=release'
-        print('search url:', search_url)
+
+        music_title = utils.remove_parantesis(music_title)
+        album_search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
+            music_title + ' ' + artist) + '&format_exact=Album&type=release'
+        # search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
+        #     music_title + ' ' + artist) + '&type=release'
+        print('search url:', album_search_url)
         base_url = 'https://www.discogs.com'
-        r = requests.get(search_url)
+        r = requests.get(album_search_url)
         base_soup = BeautifulSoup(r.content, 'html.parser')
 
+        # Parse albumname
+        album_name_a = base_soup.find('a', attrs={'class': 'search_result_title'})
+
+        if album_name_a:
+            self.album = album_name_a.text
+        else:
+            print('CD ariyor')
+            cd_search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
+                music_title + ' ' + artist) + '&format_exact=CD&type=release'
+            r = requests.get(cd_search_url)
+            base_soup = BeautifulSoup(r.content, 'html.parser')
+
+            # Parse albumname
+            album_name_a = base_soup.find('a', attrs={'class': 'search_result_title'})
+            if album_name_a:
+                self.album = album_name_a.text
+
+        print('album name: ',self.album)
         cards = base_soup.find_all('div', attrs={'class': 'card'})
         # find related card if artist exist
         card = None
@@ -37,8 +61,8 @@ class Metadata:
             # seperation for various artists
             if ',' in artist:
                 artist = artist.split(',')[0]
-            print('artist:', utils.strip_text(artist.lower()))
-            print('card_artist:', utils.strip_text(card_artist.lower()))
+            # print('artist:', utils.strip_text(artist.lower()))
+            # print('card_artist:', utils.strip_text(card_artist.lower()))
             if utils.strip_text(artist.lower()) in utils.strip_text(card_artist.lower()):
                 card = c
                 break
@@ -47,12 +71,12 @@ class Metadata:
         #     artwork.download_artwork_google(music_title + ' ' + artist)
         #     return
 
-        print('CARD STATUS')
+        # print('CARD STATUS')
         if card:
             print('card exist')
         else:
             artwork.download_artwork_google(music_title + ' ' + artist)
-            print('card does not exist downloaded from google')
+            # print('card does not exist downloaded from google')
             return
 
         card_href = card.find('a').get('href')
@@ -76,7 +100,8 @@ class Metadata:
             # Label: # Format:# Country:# Released:# Genre:# Style:
             texts.append(utils.strip_text(div.text))
 
-        self.label = texts[0]
+        self.label = music_title
+        self.format = texts[1]
         self.country = texts[2]
         self.realese_date = texts[3]
         self.genre = texts[4]
@@ -86,13 +111,19 @@ class Metadata:
     def edit_tags(self, path):
         audio = EasyID3(path)
         audio["title"] = self.label
+        audio['album'] = self.album
         audio["releasecountry"] = self.country
         audio["date"] = utils.extract_date(self.realese_date)
         audio["genre"] = self.genre
         audio.save()
 
 
-def create_metadata( path, music_title, artist):
+#
+# m = Metadata()
+# m.search_tags('Anason', 'Zakkum')
+
+
+def create_metadata(path, music_title, artist):
     print('create_metadata icine girdi')
     result = False
     metadata = Metadata()
