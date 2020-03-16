@@ -23,14 +23,15 @@ class Metadata:
         pass
 
     def search_tags(self, music_title, artist):
-        print('search_tags fonksiyonuna girdi')
 
-        music_title = utils.remove_parantesis(music_title)
+        if '(' in music_title and ')' in music_title:
+            music_title = utils.remove_parantesis(music_title)
+
         album_search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
             music_title + ' ' + artist) + '&format_exact=Album&type=release'
         # search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
         #     music_title + ' ' + artist) + '&type=release'
-        print('search url:', album_search_url)
+        # print('search url:', album_search_url)
         base_url = 'https://www.discogs.com'
         r = requests.get(album_search_url)
         base_soup = BeautifulSoup(r.content, 'html.parser')
@@ -41,7 +42,7 @@ class Metadata:
         if album_name_a:
             self.album = album_name_a.text
         else:
-            print('CD ariyor')
+            # print('CD ariyor')
             cd_search_url = 'https://www.discogs.com/search/?q=' + utils.string_to_querystring(
                 music_title + ' ' + artist) + '&format_exact=CD&type=release'
             r = requests.get(cd_search_url)
@@ -52,7 +53,7 @@ class Metadata:
             if album_name_a:
                 self.album = album_name_a.text
 
-        print('album name: ',self.album)
+        # print('album name: ',self.album)
         cards = base_soup.find_all('div', attrs={'class': 'card'})
         # find related card if artist exist
         card = None
@@ -91,7 +92,7 @@ class Metadata:
         img = img_span.find_next()
         img_link = img['src']
         artwork.download_discord(img_link)
-        print('metadata song_link', song_link)
+        # print('metadata song_link', song_link)
 
         # get informations
         all_divs = soup.find_all('div', attrs={'class': 'content'})
@@ -106,7 +107,7 @@ class Metadata:
         self.realese_date = texts[3]
         self.genre = texts[4]
         self.style = texts[5]
-        print('search path fonksiyonundan cikti')
+        # print('search path fonksiyonundan cikti')
 
     def edit_tags(self, path):
         audio = EasyID3(path)
@@ -124,7 +125,7 @@ class Metadata:
 
 
 def create_metadata(path, music_title, artist):
-    print('create_metadata icine girdi')
+    # print('create_metadata icine girdi')
     result = False
     metadata = Metadata()
 
@@ -140,7 +141,7 @@ def create_metadata(path, music_title, artist):
             # Remove Downloaded Image if exist
             os.remove(utils.downloaded_image_path)
             result = True
-        print('create_metadatadan cikti')
+        # print('create_metadatadan cikti')
     except:
         print('error inside create_metadata')
     return result

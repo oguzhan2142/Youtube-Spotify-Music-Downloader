@@ -38,7 +38,6 @@ class Screen:
         self.buttons_labelframe.grid(row=0, column=0, rowspan=2, padx=10, pady=4, )
 
         self.delete_icon = PhotoImage(file=r"icon/clear_console.png").subsample(1, 2)
-
         self.folder_btn = Button(self.buttons_labelframe, font=buttons_font, text="Select Folder", justify=CENTER, bd=0)
         self.folder_btn.grid(row=0, column=0, pady=2, sticky=W + E)
 
