@@ -124,7 +124,6 @@ def download(url, screen, directory=None, music_title=None, artist=None):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 
             # Add Information
-            screen.append_text(utils.header)
             screen.append_text('music title:' + music_title + '\n')
             screen.append_text('artist:' + artist + '\n')
 

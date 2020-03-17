@@ -97,7 +97,6 @@ def selenium_parse(url, screen):
         return parse_track(soup)
 
 
-
 def find_highest_related_video(music):
     static_duration = 3.0
     music_name = music['track_name'].lower()
@@ -142,7 +141,7 @@ def download_from_spotify(url, screen, directory=None):
         # Indirme
         best_url = video['url']
         download_link = youtube_base + best_url
-        screen.append_text(str(index) + '-')
+        screen.append_text(str(index) + ' / ' + str(len(playlist)))
         download(download_link, screen, directory, music['track_name'], music['artist'])
         downloaded_counter += 1
     last = int(round(time.time() * 1000))

@@ -12,6 +12,7 @@ class Metadata:
     def __init__(self):
         self.label = ''
         self.format = ''
+        self.artist = ''
         self.album = ''
         self.country = ''
         self.realese_date = ''
@@ -57,6 +58,7 @@ class Metadata:
                 self.album = album_name_a.text
 
         self.label = music_title
+        self.artist = artist.title()
 
         # cards = base_soup.find_all('div', attrs={'class': 'card'})
         #
@@ -113,6 +115,7 @@ class Metadata:
         audio["releasecountry"] = self.country
         audio["date"] = utils.extract_date(self.realese_date)
         audio["genre"] = self.genre
+        audio['artist'] = self.artist
         audio.save()
 
 
