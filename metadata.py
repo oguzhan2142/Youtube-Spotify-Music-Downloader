@@ -23,7 +23,7 @@ class Metadata:
     def download_artwork(self, download_link):
         pass
 
-    def search_tags(self, music_title, artist):
+    def search_tags(self, music_title, artist, album):
 
         if '(' in music_title and ')' in music_title:
             music_title = utils.remove_parantesis(music_title)
@@ -59,6 +59,7 @@ class Metadata:
 
         self.label = music_title
         self.artist = artist.title()
+        self.album = album
 
         # cards = base_soup.find_all('div', attrs={'class': 'card'})
         #
@@ -90,7 +91,7 @@ class Metadata:
         img_span = soup.find(attrs={'class': 'thumbnail_center'})
         img = img_span.find_next()
         img_link = img['src']
-        artwork.download_discord(img_link)
+        artwork.download_artwork(img_link)
         # print('metadata song_link', song_link)
 
         # get informations
@@ -124,14 +125,14 @@ class Metadata:
 # m.search_tags('Anason', 'Zakkum')
 
 
-def create_metadata(path, music_title, artist):
+def create_metadata(path, music_title, artist, album):
     # print('create_metadata icine girdi')
     result = False
     metadata = Metadata()
 
     # Search tags and download Image
 
-    metadata.search_tags(music_title, artist)
+    metadata.search_tags(music_title, artist, album)
 
     # Paste tags
     try:

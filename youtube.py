@@ -4,7 +4,6 @@ from threading import Thread
 
 import youtube_dl
 
-import metadata
 import utils
 
 
@@ -45,13 +44,18 @@ def extract_single_title(url):
                                 'extract_flat': True})
     with ydl:
         dic = ydl.extract_info(url, False)
-        return {'track_name': dic['track'], 'artist': dic['artist'], 'duration': dic['duration']}
-        # return dic['track'], dic['artist']
+        # return {'track_name': dic['track'], 'artist': dic['artist']}
+        return dic['track'], dic['artist']
 
 
 def download_single(url, screen, directory, music_title, artist):
     download(url, screen, directory, music_title, artist)
     screen.set_downloadbtn_normal()
+
+
+def find_info_from_spotify(track,artist):
+    pass
+
 
 
 def download_playlist(playlist_url, screen, directory=None):
@@ -61,8 +65,10 @@ def download_playlist(playlist_url, screen, directory=None):
     for music in playlist:
         url = base_url + music['url']
         track_title, artist = extract_single_title(url)
-
-        download(url, screen, directory, track_title, artist)
+        print(track_title)
+        print(artist)
+        print()
+        # download(url, screen, directory, track_title, artist)
     screen.append_text(utils.all_downloads_finished)
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
     screen.set_downloadbtn_normal()
@@ -75,7 +81,7 @@ path = None
 
 
 def download(url, screen, directory=None, music_title=None, artist=None):
-    now = int(round(time.time() * 1000))
+    # now = int(round(time.time() * 1000))
     if directory:
         download_directory = directory + '/%(title)s.%(ext)s'
     else:
@@ -135,25 +141,26 @@ def download(url, screen, directory=None, music_title=None, artist=None):
         screen.append_text('Error occured when downloading or converting\n')
         return
 
-    # Edit Metadata
-    screen.append_text('\nMetadata |')
-    print('MUSIC FOR')
-    print('music title', music_title)
-    print('artist', artist)
+    # # Edit Metadata
+    # screen.append_text('\nMetadata |')
+    # print('MUSIC FOR')
+    # print('music title', music_title)
+    # print('artist', artist)
     global path
-    print('path in download:', path)
+    # print('path in download:', path)
     if path.endswith('webm'):
         path = path.replace('webm', 'mp3')
     else:
-        path = path.replace('m4a','mp3')
-    print('path in download:', path)
+        path = path.replace('m4a', 'mp3')
+    return path
+    # print('path in download:', path)
+    #
+    # is_successful = metadata.create_metadata(path, music_title, artist,album)
+    # if is_successful:
+    #     screen.append_text(' √ |\n')
+    # else:
+    #     screen.append_text(' X |\n')
 
-    is_successful = metadata.create_metadata(path, music_title, artist)
-    if is_successful:
-        screen.append_text(' √ |\n')
-    else:
-        screen.append_text(' X |\n')
-
-    last = int(round(time.time() * 1000))
-    elapsed_time = (last - now) / 1000
-    screen.append_text('total elapsed time:' + str(elapsed_time) + ' sec\n\n')
+    # last = int(round(time.time() * 1000))
+    # elapsed_time = (last - now) / 1000
+    # screen.append_text('total elapsed time:' + str(elapsed_time) + ' sec\n\n')

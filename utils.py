@@ -106,6 +106,19 @@ def convert_seconds_floating_and_string(value):
     return str(minute) + '.' + str(seconds)
 
 
+def extract_cover_link(string ):
+    start = string.index('//') + 2
+    if '")' in string:
+        end = string.index('")')
+    else:
+        end = string.index(')')
+    result = 'http://' + string[start:end]
+
+    return result
+
+
+
+
 def give_float_value(string):
     array = string.split(':')
     new_string = ''

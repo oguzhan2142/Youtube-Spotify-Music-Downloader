@@ -49,21 +49,19 @@ class MetadataTest(unittest.TestCase):
         ]
 
     def test_search_tags(self):
-        pass
+        self.initilized_links()
+        self.search_tags(self.album_urls)
 
     def search_tags(self, urls):
         screen = Screen()
         for url in urls:
-            print(url, ':')
+            print('album url: ', url, )
             musics = selenium_parse(url, screen)
             for music in musics:
-                print('*' * 20)
                 print(music['track_name'], '-', music['artist'])
                 m = Metadata()
                 m.search_tags(music['track_name'], music['artist'])
                 print('album:', m.album)
-                self.assertNotEqual(m.label, '', msg='label:' + m.label)
-                self.assertNotEqual(m.album, '', msg='album:' + m.album)
         utils.remove_img()
 
     def test_same_album(self):
