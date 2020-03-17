@@ -113,16 +113,16 @@ def parse_track(soup):
 
     artist = track_row.find(attrs={'class': 'second-line'}).text
     duration = track_row.find(attrs={'class': 'tracklist-duration'}).text
-    return [{
+    return {
         'artist': artist,
         'album': album,
         'track_name': track_name,
         'duration': utils.give_float_value(duration),
         'cover_link': link,
-    }]
+    }
 
 
-def selenium_parse(url, screen):
+def selenium_parse(url, screen=None):
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-gpu")
@@ -137,17 +137,21 @@ def selenium_parse(url, screen):
     driver.quit()
 
     if 'artist' in url:
-        screen.append_text('Artist Page Found\n')
-        screen.append_text('Artist Page Part Broken\n')
+        if screen:
+            screen.append_text('Artist Page Found\n')
+            screen.append_text('Artist Page Part Broken\n')
         # return parse_artist(soup)
     elif 'album' in url:
-        screen.append_text('Album Page Found\n')
+        if screen:
+            screen.append_text('Album Page Found\n')
         return parse_album(soup)
     elif 'playlist' in url:
-        screen.append_text('Playlist Page Found\n')
+        if screen:
+            screen.append_text('Playlist Page Found\n')
         return parse_playlist(soup)
     else:
-        screen.append_text('Track Page Found\n')
+        if screen:
+            screen.append_text('Track Page Found\n')
         return parse_track(soup)
 
 
@@ -201,9 +205,8 @@ def download_from_spotify(url, screen, directory=None):
         downloaded_counter += 1
 
         # Metadata
-        artwork.download_artwork(music['cover_link'])
         music_tags = {
-            'title': music['track_name'],
+            'track_name': music['track_name'],
             'artist': music['artist'],
             'album': music['album'],
             'genre': '',

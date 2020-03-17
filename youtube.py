@@ -1,9 +1,16 @@
+import os
 import platform
 import time
 from threading import Thread
 
 import youtube_dl
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
+import artwork
+import spotify
+import tags
 import utils
 
 
@@ -53,9 +60,38 @@ def download_single(url, screen, directory, music_title, artist):
     screen.set_downloadbtn_normal()
 
 
-def find_info_from_spotify(track,artist):
-    pass
+def find_info_from_spotify(track, artist):
+    if not track or not artist:
+        return
+    url = 'https://open.spotify.com/search/' + track + '%20' + artist
+    # r = requests.get(url)
+    chrome_options = Options()
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--headless")
 
+    if platform.system() == 'Windows':
+        driver = webdriver.Chrome('Driver/Windows/chromedriver.exe', options=chrome_options)
+    else:
+        driver = webdriver.Chrome('Driver/MacOs/chromedriver', options=chrome_options)
+    driver.get(url)
+
+    soup = BeautifulSoup(driver.page_source.encode("utf-8"), 'html.parser')
+    driver.quit()
+
+    track_link = None
+    sections = soup.find_all(attrs='react-contextmenu-wrapper')
+    for section in sections:
+        href = section.find_next('a')['href']
+        base_spotify = 'https://open.spotify.com'
+        link = base_spotify + href
+        if 'track' in link:
+            track_link = link
+            break
+    if track_link:
+        print(track_link)
+        music = spotify.selenium_parse(track_link)
+        return music
 
 
 def download_playlist(playlist_url, screen, directory=None):
@@ -68,7 +104,24 @@ def download_playlist(playlist_url, screen, directory=None):
         print(track_title)
         print(artist)
         print()
-        # download(url, screen, directory, track_title, artist)
+
+        downloaded_path = download(url, screen, directory, track_title, artist)
+        info = find_info_from_spotify(track_title, artist)
+        if not info:
+            continue
+        music_tags = {
+            'track_name': info['track_name'],
+            'artist': info['artist'],
+            'album': info['album'],
+            'genre': '',
+        }
+        tags.paste_tags(downloaded_path, music_tags)
+        artwork.download_artwork(info['cover_link'])
+
+        if os.path.exists(utils.downloaded_image_path):
+            artwork.edit_artwork(downloaded_path, utils.downloaded_image_path)
+            os.remove(utils.downloaded_image_path)
+
     screen.append_text(utils.all_downloads_finished)
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
     screen.set_downloadbtn_normal()
