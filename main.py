@@ -1,7 +1,8 @@
+import requests
+
 from screen import Screen
 from spotify import *
 from youtube import *
-import requests
 
 
 def downloading_process():

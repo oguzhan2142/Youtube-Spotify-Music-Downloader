@@ -216,7 +216,7 @@ def download_from_spotify(url, screen, directory=None):
         artwork.download_artwork(music['cover_link'])
 
         if os.path.exists(utils.downloaded_image_path):
-            artwork.edit_artwork(downloaded_path, utils.downloaded_image_path)
+            artwork.embed_in_songfile(downloaded_path, utils.downloaded_image_path)
             os.remove(utils.downloaded_image_path)
 
     last = int(round(time.time() * 1000))

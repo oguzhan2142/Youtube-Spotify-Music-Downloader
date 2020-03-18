@@ -2,10 +2,6 @@ import os
 import platform
 
 all_downloads_finished = '\nProgress Finished Successfully\n'
-# downloading = '\ndownloading:       [######              ]'
-# converting = '\nconverting:        [############        ]'
-# converted = '\nconverted to mp3:  [####################]'
-
 downloaded_image_path = 'img.png'
 
 
@@ -92,21 +88,7 @@ def turn_turkishchars_to_englishchars(string='asd'):
     return string
 
 
-def get_plain_string(string):
-    string = remove_remix(string)
-    string = remove_noncharacters(string)
-    string = turn_turkishchars_to_englishchars(string)
-    return string
-
-
-def convert_seconds_floating_and_string(value):
-    minute = int(value // 60)
-    seconds = int(value % 60)
-
-    return str(minute) + '.' + str(seconds)
-
-
-def extract_cover_link(string ):
+def extract_cover_link(string):
     start = string.index('//') + 2
     if '")' in string:
         end = string.index('")')
@@ -115,8 +97,6 @@ def extract_cover_link(string ):
     result = 'http://' + string[start:end]
 
     return result
-
-
 
 
 def give_float_value(string):
@@ -146,8 +126,3 @@ def strip_text(string):
     string = string.replace('\n', '')
     string = string.strip()
     return string
-
-
-def extract_date(date_with_day_and_month):
-    date = date_with_day_and_month[-4:]
-    return date

@@ -111,7 +111,7 @@ def handle_metadata(downloaded_path, track_title, artist):
     artwork.download_artwork(info['cover_link'])
 
     if os.path.exists(utils.downloaded_image_path):
-        artwork.edit_artwork(downloaded_path, utils.downloaded_image_path)
+        artwork.embed_in_songfile(downloaded_path, utils.downloaded_image_path)
         os.remove(utils.downloaded_image_path)
 
 
@@ -202,26 +202,9 @@ def download(url, screen, directory=None, music_title=None, artist=None):
         screen.append_text('Error occured when downloading or converting\n')
         return
 
-    # # Edit Metadata
-    # screen.append_text('\nMetadata |')
-    # print('MUSIC FOR')
-    # print('music title', music_title)
-    # print('artist', artist)
     global path
-    # print('path in download:', path)
     if path.endswith('webm'):
         path = path.replace('webm', 'mp3')
     else:
         path = path.replace('m4a', 'mp3')
     return path
-    # print('path in download:', path)
-    #
-    # is_successful = metadata.create_metadata(path, music_title, artist,album)
-    # if is_successful:
-    #     screen.append_text(' √ |\n')
-    # else:
-    #     screen.append_text(' X |\n')
-
-    # last = int(round(time.time() * 1000))
-    # elapsed_time = (last - now) / 1000
-    # screen.append_text('total elapsed time:' + str(elapsed_time) + ' sec\n\n')

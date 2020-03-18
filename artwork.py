@@ -39,7 +39,7 @@ def download_artwork(url):
             shutil.copyfileobj(r.raw, f)
 
 
-def edit_artwork(audio_path, picture_path):
+def embed_in_songfile(audio_path, picture_path):
     audio = MP3(audio_path, ID3=ID3)
 
     try:
