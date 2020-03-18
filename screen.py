@@ -3,7 +3,7 @@ import subprocess
 from tkinter import *
 from tkinter import filedialog
 from tkinter.font import Font
-
+import os
 import utils
 
 
@@ -28,7 +28,7 @@ class Screen:
         self.L1.grid(row=0, column=0, sticky=E, pady=10)
 
         self.url_field = Entry(self.url_labelframe, bd=3, width=40)
-        self.url_field.grid(row=0, column=1, sticky=W, ipadx=40, pady=10)
+        self.url_field.grid(row=0, column=1, sticky=W, ipadx=20, pady=10)
 
         # Download Button Part
         self.download_btn = Button(self.frame, text="Download", font=widgets_font,
@@ -75,13 +75,17 @@ class Screen:
     def open_folder(self):
         if self.directory:
             if platform.system() == "Windows":
-                subprocess.check_call(["explorer", "/select", self.directory])
+                subprocess.run(['explorer', os.path.realpath(self.directory)])
             else:
                 subprocess.check_call(["open", "--", self.directory])
 
     def select_folder(self):
-        self.directory = filedialog.askdirectory(initialdir="../")
-        self.append_text(self.directory + '\n')
+        if platform.system() == "Windows":
+            self.directory = filedialog.askdirectory(initialdir="../")
+            self.append_text(self.directory + '\n')
+        else:    
+            self.directory=filedialog.askdirectory(initialdir="../")
+            self.append_text(self.directory + "\n")
 
     def clear_console(self):
         self.console.configure(state=NORMAL)

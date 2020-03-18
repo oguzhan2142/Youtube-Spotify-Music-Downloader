@@ -37,12 +37,14 @@ def add_summary_to_screen(screen, skipped_musics=None, downloaded_counter=None):
 
 
 def give_desktop_path():
+
     if platform.system() == 'Windows':
-        desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop/Downloads/')
+        desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop\\Downloads\\')
     else:
         userhome = os.path.expanduser('~')
         desktop_path = userhome + '/Desktop/Downloads/'
     return desktop_path
+
 
 
 def give_desktop_path_with_template():
