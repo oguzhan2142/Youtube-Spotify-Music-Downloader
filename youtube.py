@@ -9,8 +9,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 import artwork
+import metadata
 import spotify
-import tags
 import utils
 
 
@@ -19,9 +19,11 @@ def download_from_yt(url, screen, directory=None):
         screen.append_text('Playlist Found\n')
         Thread(target=download_playlist, args=(url, screen, directory,)).start()
     else:
+
         music_title, artist = extract_single_title(url)
-        if '(' and ')' in music_title:
-            music_title = utils.remove_parantesis(music_title)
+        if music_title:
+            if '(' and ')' in music_title:
+                music_title = utils.remove_parantesis(music_title)
         Thread(target=download_single, args=(url, screen, directory, music_title, artist,)).start()
 
 
@@ -57,7 +59,7 @@ def extract_single_title(url):
 
 def download_single(url, screen, directory, music_title, artist):
     downloaded_path = download(url, screen, directory, music_title, artist)
-    handle_metadata(downloaded_path,music_title,artist)
+    handle_metadata(downloaded_path, music_title, artist)
     screen.set_downloadbtn_normal()
 
 
@@ -105,7 +107,7 @@ def handle_metadata(downloaded_path, track_title, artist):
         'album': info['album'],
         'genre': '',
     }
-    tags.paste_tags(downloaded_path, music_tags)
+    metadata.paste_tags(downloaded_path, music_tags)
     artwork.download_artwork(info['cover_link'])
 
     if os.path.exists(utils.downloaded_image_path):
@@ -185,12 +187,12 @@ def download(url, screen, directory=None, music_title=None, artist=None):
         'noplaylist': True,
         'logger': MyLogger(),
     }
+    # Add Information
+    if music_title and artist:
+        screen.append_text('music title:' + music_title + '\n')
+        screen.append_text('artist:' + artist + '\n')
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-
-            # Add Information
-            screen.append_text('music title:' + music_title + '\n')
-            screen.append_text('artist:' + artist + '\n')
 
             # Download
             screen.append_text('downloading\n')

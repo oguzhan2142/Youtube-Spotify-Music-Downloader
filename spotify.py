@@ -9,7 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 import artwork
-import tags
+import metadata
 import utils
 from youtube import download
 from youtube import extract_playlist_info
@@ -212,7 +212,7 @@ def download_from_spotify(url, screen, directory=None):
             'genre': '',
         }
 
-        tags.paste_tags(downloaded_path, music_tags)
+        metadata.paste_tags(downloaded_path, music_tags)
         artwork.download_artwork(music['cover_link'])
 
         if os.path.exists(utils.downloaded_image_path):
