@@ -203,6 +203,9 @@ def download_from_spotify(url, screen, directory=None):
         downloaded_path = download(download_link, screen, directory, music['track_name'], music['artist'])
         print('path:', downloaded_path)
         downloaded_counter += 1
+        
+        if not downloaded_path:
+            continue
 
         # Metadata
         music_tags = {
@@ -211,7 +214,7 @@ def download_from_spotify(url, screen, directory=None):
             'album': music['album'],
             'genre': '',
         }
-
+        
         metadata.paste_tags(downloaded_path, music_tags)
         artwork.download_artwork(music['cover_link'])
 
