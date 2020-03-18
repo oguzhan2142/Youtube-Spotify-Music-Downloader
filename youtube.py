@@ -15,7 +15,7 @@ import utils
 
 
 def download_from_yt(url, screen, directory=None):
-    if 'playlist' or 'list' in url:
+    if 'playlist' in url:
         screen.append_text('Playlist Found\n')
         Thread(target=download_playlist, args=(url, screen, directory,)).start()
     else:
@@ -56,7 +56,8 @@ def extract_single_title(url):
 
 
 def download_single(url, screen, directory, music_title, artist):
-    download(url, screen, directory, music_title, artist)
+    downloaded_path = download(url, screen, directory, music_title, artist)
+    handle_metadata(downloaded_path,music_title,artist)
     screen.set_downloadbtn_normal()
 
 
@@ -94,6 +95,24 @@ def find_info_from_spotify(track, artist):
         return music
 
 
+def handle_metadata(downloaded_path, track_title, artist):
+    info = find_info_from_spotify(track_title, artist)
+    if not info:
+        return
+    music_tags = {
+        'track_name': info['track_name'],
+        'artist': info['artist'],
+        'album': info['album'],
+        'genre': '',
+    }
+    tags.paste_tags(downloaded_path, music_tags)
+    artwork.download_artwork(info['cover_link'])
+
+    if os.path.exists(utils.downloaded_image_path):
+        artwork.edit_artwork(downloaded_path, utils.downloaded_image_path)
+        os.remove(utils.downloaded_image_path)
+
+
 def download_playlist(playlist_url, screen, directory=None):
     now = int(round(time.time() * 1000))
     base_url = 'https://www.youtube.com/watch?v='
@@ -104,23 +123,10 @@ def download_playlist(playlist_url, screen, directory=None):
         print(track_title)
         print(artist)
         print()
-
+        # Download
         downloaded_path = download(url, screen, directory, track_title, artist)
-        info = find_info_from_spotify(track_title, artist)
-        if not info:
-            continue
-        music_tags = {
-            'track_name': info['track_name'],
-            'artist': info['artist'],
-            'album': info['album'],
-            'genre': '',
-        }
-        tags.paste_tags(downloaded_path, music_tags)
-        artwork.download_artwork(info['cover_link'])
-
-        if os.path.exists(utils.downloaded_image_path):
-            artwork.edit_artwork(downloaded_path, utils.downloaded_image_path)
-            os.remove(utils.downloaded_image_path)
+        # Metadata
+        handle_metadata(downloaded_path, track_title, artist)
 
     screen.append_text(utils.all_downloads_finished)
     utils.add_summary_to_screen(screen, downloaded_counter=len(playlist))
